@@ -1223,7 +1223,8 @@ function tick() { return new Promise(r => setTimeout(r, 0)); }
 async function ghApi(method, path, bodyObj) {
   const { owner, repo, token } = state.settings.gh;
   if (!owner || !repo || !token) throw new Error("请先在设置中填写 GitHub 同步信息");
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${path}`;
+  const base = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+  const url = path ? `${base}/${path}` : base;
   const headers = {
     Authorization: `Bearer ${token}`,
     Accept: "application/vnd.github+json",
