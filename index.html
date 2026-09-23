@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EFE4">
+<title>安全日记本 · Secure Diary</title>
+<!-- PWA / iOS 安装支持 -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="安全日记本">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%232E5E4A'/%3E%3Crect x='16' y='19' width='32' height='28' rx='2' fill='%23F4EFE4'/%3E%3Cline x1='21' y1='26' x2='43' y2='26' stroke='%23C9BFA6' stroke-width='2'/%3E%3Cline x1='21' y1='31' x2='43' y2='31' stroke='%23C9BFA6' stroke-width='2'/%3E%3Cline x1='21' y1='36' x2='35' y2='36' stroke='%23C9BFA6' stroke-width='2'/%3E%3Cpath d='M24 19v-2a8 8 0 0 1 16 0v2' fill='none' stroke='%23F4EFE4' stroke-width='3'/%3E%3Crect x='24' y='17' width='16' height='11' rx='2' fill='%23F4EFE4'/%3E%3Ccircle cx='32' cy='22' r='2' fill='%23B23A2E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* ============ 设计令牌 ============ */
+:root{
+  --bg:#F4EFE4;
+  --bg-deep:#EDE6D6;
+  --card:#FCFAF3;
+  --card-2:#F7F3E8;
+  --ink:#26231D;
+  --ink-2:#6E6759;
+  --ink-3:#9A927F;
+  --line:#E2DAC7;
+  --line-2:#D3C9B0;
+  --seal:#B23A2E;
+  --seal-deep:#96301F;
+  --seal-soft:#F3E0DA;
+  --green:#2E5E4A;
+  --green-deep:#23483A;
+  --green-soft:#E3EAE1;
+  --amber:#B97E1F;
+  --amber-soft:#F4E9D2;
+  --danger:#A8322B;
+  --shadow:0 1px 2px rgba(38,35,29,.05),0 8px 28px rgba(38,35,29,.08);
+  --r:14px;
+  --serif:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Code","Consolas",monospace;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:auto}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.65;
+  min-height:100vh;
+  padding-top:var(--sat);
+  padding-bottom:var(--sab);
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(1100px 520px at 50% -10%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(900px 420px at 110% 115%, rgba(46,94,74,.06), transparent 60%);
+}
+::selection{background:var(--seal-soft)}
+a{color:var(--green);text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:15px;color:var(--ink)}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:4px}
+
+/* ============ 基础组件 ============ */
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:15px;font-weight:500;padding:11px 18px;border-radius:12px;
+  border:1px solid var(--line-2);background:var(--card);color:var(--ink);
+  transition:transform .06s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease;
+  user-select:none;
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--seal);border-color:var(--seal);color:#FFF8EE;font-weight:600}
+.btn-primary:hover{background:var(--seal-deep);border-color:var(--seal-deep)}
+.btn-green{background:var(--green);border-color:var(--green);color:#F4F1E6;font-weight:600}
+.btn-green:hover{background:var(--green-deep)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn-ghost:hover{background:var(--bg-deep);color:var(--ink)}
+.btn-danger{background:#fff;border-color:#E5C7C2;color:var(--danger)}
+.btn-danger:hover{background:var(--seal-soft)}
+.btn-block{width:100%}
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--ink-2);border:1px solid transparent;transition:background .15s ease,color .15s ease;
+}
+.icon-btn:hover{background:var(--bg-deep);color:var(--ink)}
+.icon-btn svg{width:20px;height:20px}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:7px}
+.input,.textarea{
+  width:100%;background:var(--card);border:1px solid var(--line-2);border-radius:12px;
+  padding:11px 14px;outline:none;transition:border-color .15s ease,box-shadow .15s ease;
+}
+.input:focus,.textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,94,74,.12)}
+.textarea{min-height:150px;resize:vertical;line-height:1.8}
+.hint{font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.hint b{color:var(--ink-2);font-weight:500}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* ============ 视图路由与过渡 ============ */
+.view{display:none;background:var(--bg)}
+.view.active{display:block}
+.view.leaving{pointer-events:none}
+@keyframes viewEnterForward{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+@keyframes viewEnterBack{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
+@keyframes viewFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .view.active,.view.leaving{animation:none!important}
+  *{transition:none!important}
+}
+
+/* ============ 欢迎页 ============ */
+.screen-welcome{padding:56px 0 40px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+.brand-logo{
+  width:46px;height:46px;border-radius:13px;background:var(--green);
+  display:flex;align-items:center;justify-content:center;color:#F4F1E6;
+  box-shadow:0 4px 14px rgba(46,94,74,.28);
+}
+.brand-name{font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:.5px}
+.hero-title{font-family:var(--serif);font-size:30px;font-weight:900;line-height:1.35;margin-bottom:14px}
+.hero-title em{font-style:normal;color:var(--seal)}
+.hero-sub{color:var(--ink-2);font-size:15px;margin-bottom:30px;max-width:560px}
+.sec-points{display:grid;gap:12px;margin-bottom:30px}
+.sec-point{
+  display:flex;gap:12px;align-items:flex-start;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;
+}
+.sec-point .dot{
+  flex:none;width:9px;height:9px;border-radius:50%;margin-top:8px;background:var(--green);
+}
+.sec-point:nth-child(2) .dot{background:var(--seal)}
+.sec-point:nth-child(3) .dot{background:var(--amber)}
+.sec-point b{display:block;font-size:14.5px;margin-bottom:2px}
+.sec-point span{font-size:13px;color:var(--ink-2);line-height:1.6}
+.warn-box{
+  display:flex;gap:10px;background:var(--amber-soft);border:1px solid #E6D2A6;
+  border-radius:12px;padding:12px 14px;font-size:13px;color:#7A5A18;line-height:1.6;margin-bottom:26px;
+}
+.warn-box svg{flex:none;width:18px;height:18px;margin-top:2px}
+.strength{display:flex;gap:6px;margin-top:8px}
+.strength i{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .2s ease}
+.strength-label{font-size:12px;color:var(--ink-3);margin-top:5px}
+.pw-visual{position:relative}
+.pw-visual .input{padding-right:42px}
+.pw-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:42px;height:42px;display:flex;align-items:center;justify-content:center;color:var(--ink-3);border-radius:10px}
+.pw-eye:hover{color:var(--ink)}
+.pw-eye svg{width:19px;height:19px}
+
+/* ============ 锁屏 ============ */
+.screen-lock{padding:88px 0 40px;text-align:center}
+.lock-seal{
+  width:64px;height:64px;border-radius:19px;background:var(--green);margin:0 auto 22px;
+  display:flex;align-items:center;justify-content:center;color:#F4F1E6;
+  box-shadow:0 8px 24px rgba(46,94,74,.3);
+}
+.lock-seal svg{width:32px;height:32px}
+.lock-title{font-family:var(--serif);font-size:22px;font-weight:700;margin-bottom:6px}
+.lock-sub{color:var(--ink-2);font-size:13.5px;margin-bottom:30px}
+.lock-form{max-width:380px;margin:0 auto;text-align:left}
+.lock-meta{
+  margin-top:26px;display:flex;flex-direction:column;gap:6px;align-items:center;
+  font-size:12.5px;color:var(--ink-3);
+}
+.lock-meta .ok{display:inline-flex;align-items:center;gap:6px;color:var(--green)}
+.lock-meta .ok svg{width:14px;height:14px}
+.lock-error{
+  display:none;background:var(--seal-soft);color:var(--seal-deep);
+  border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:14px;
+}
+.lock-error.show{display:block}
+.attempt-wait{font-size:12.5px;color:var(--danger);margin-top:10px;text-align:center}
+
+/* ============ 主界面 ============ */
+.app-header{
+  position:sticky;top:0;z-index:20;background:rgba(244,239,228,.92);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.app-header .inner{display:flex;align-items:center;gap:10px;padding:10px 0}
+.app-header .brand-logo{width:36px;height:36px;border-radius:11px}
+.app-header .brand-logo svg{width:20px;height:20px}
+.header-title{font-family:var(--serif);font-weight:700;font-size:17px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-date{font-size:12px;color:var(--ink-3);white-space:nowrap}
+.search-bar{margin:16px 0 6px}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--ink-3)}
+.search-wrap .input{padding-left:40px;border-radius:13px;background:var(--card)}
+.search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;display:none;align-items:center;justify-content:center;color:var(--ink-3);border-radius:8px}
+.search-clear.show{display:flex}
+.search-clear:hover{background:var(--bg-deep)}
+.month-block{margin:20px 0 8px}
+.month-label{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--serif);
+  font-weight:700;font-size:15px;color:var(--ink-2);padding:4px 12px;border-radius:999px;
+  background:var(--bg-deep);border:1px solid var(--line);
+}
+.month-label i{width:6px;height:6px;border-radius:50%;background:var(--seal)}
+.entry-card{
+  display:block;width:100%;text-align:left;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r);padding:15px 17px;margin-bottom:11px;
+  box-shadow:0 1px 2px rgba(38,35,29,.04);transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease;
+}
+.entry-card:hover{border-color:var(--line-2);transform:translateY(-1px);box-shadow:var(--shadow)}
+.entry-card:active{transform:none}
+.entry-top{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.entry-date{font-size:12.5px;color:var(--ink-3);letter-spacing:.3px}
+.mood-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.mood-tag{font-size:11.5px;color:var(--ink-3);background:var(--bg-deep);border-radius:999px;padding:1px 8px}
+.entry-title{font-family:var(--serif);font-size:17px;font-weight:700;line-height:1.45;margin-bottom:4px}
+.entry-preview{font-size:13.5px;color:var(--ink-2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.entry-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.tag{font-size:11.5px;color:var(--green);background:var(--green-soft);border-radius:999px;padding:2px 9px}
+.empty-state{
+  text-align:center;padding:72px 20px;color:var(--ink-2);
+}
+.empty-state svg{width:46px;height:46px;color:var(--line-2);margin-bottom:16px}
+.empty-state b{display:block;font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:6px}
+.empty-state p{font-size:13.5px;color:var(--ink-3)}
+.fab{
+  position:fixed;right:max(20px,calc((100vw - 720px)/2 + 20px));bottom:calc(24px + var(--sab));
+  width:58px;height:58px;border-radius:19px;background:var(--seal);color:#FFF8EE;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 26px rgba(178,58,46,.38);transition:transform .15s ease,background .15s ease;
+  z-index:30;
+}
+.fab:hover{background:var(--seal-deep);transform:translateY(-2px)}
+.fab:active{transform:none}
+.fab svg{width:26px;height:26px}
+.list-footer{height:96px}
+
+/* ============ 编辑器 ============ */
+.editor-top{
+  position:sticky;top:0;z-index:20;background:rgba(244,239,228,.92);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.editor-top .inner{display:flex;align-items:center;gap:8px;padding:10px 0}
+.editor-top .spacer{flex:1}
+.editor-form{padding:22px 0 90px}
+.ed-date-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.ed-date{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);background:var(--card);border:1px solid var(--line-2);border-radius:11px;padding:8px 12px}
+.ed-date svg{width:16px;height:16px;color:var(--seal)}
+.ed-date input{border:none;background:none;font-size:14px;color:var(--ink);outline:none;width:118px;padding:0}
+.mood-row{display:flex;gap:8px;flex-wrap:wrap}
+.mood-chip{
+  display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);
+  border:1px solid var(--line-2);border-radius:999px;padding:6px 13px;background:var(--card);
+  transition:all .15s ease;
+}
+.mood-chip i{width:8px;height:8px;border-radius:50%}
+.mood-chip.active{border-color:var(--ink);background:var(--ink);color:#F4F1E6}
+.mood-chip.active i{box-shadow:0 0 0 2px rgba(244,241,230,.5)}
+.ed-title-input{
+  width:100%;background:none;border:none;outline:none;font-family:var(--serif);
+  font-size:25px;font-weight:700;padding:6px 0 4px;border-bottom:2px solid var(--line);
+  border-radius:0;
+}
+.ed-title-input::placeholder{color:var(--ink-3)}
+.ed-title-input:focus{border-color:var(--seal)}
+.ed-content{
+  width:100%;min-height:46vh;background:none;border:none;outline:none;resize:none;
+  font-size:15.5px;line-height:2;padding:18px 0;
+}
+.ed-content::placeholder{color:var(--ink-3)}
+.ed-tags-input{
+  width:100%;background:var(--card);border:1px dashed var(--line-2);border-radius:12px;
+  padding:10px 14px;font-size:14px;outline:none;
+}
+.ed-tags-input:focus{border-color:var(--green)}
+.ed-meta{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12.5px;color:var(--ink-3)}
+.ed-meta .save-state{display:inline-flex;align-items:center;gap:6px}
+.ed-meta .save-state svg{width:14px;height:14px}
+.ed-meta .save-state.ok{color:var(--green)}
+.ed-meta .save-state.err{color:var(--danger)}
+.ed-meta .spacer{flex:1}
+.ed-actions{display:flex;gap:10px;align-items:center}
+.delete-entry{
+  display:inline-flex;align-items:center;gap:6px;color:var(--danger);font-size:13.5px;
+  padding:8px 12px;border-radius:10px;
+}
+.delete-entry:hover{background:var(--seal-soft)}
+.delete-entry svg{width:16px;height:16px}
+
+/* ============ 设置页 ============ */
+.settings-head{display:flex;align-items:center;gap:10px;padding:14px 0 6px}
+.settings-head h2{font-family:var(--serif);font-size:21px;font-weight:700;flex:1}
+.sec-title{
+  font-size:12.5px;font-weight:700;color:var(--ink-3);letter-spacing:1.5px;
+  margin:26px 0 10px;display:flex;align-items:center;gap:8px;
+}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.set-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
+.set-row{
+  display:flex;align-items:center;gap:14px;padding:15px 18px;border-bottom:1px solid var(--line);
+}
+.set-row:last-child{border-bottom:none}
+.set-row .set-ic{flex:none;width:38px;height:38px;border-radius:11px;background:var(--bg-deep);display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+.set-row .set-ic svg{width:19px;height:19px}
+.set-row .set-main{flex:1;min-width:0}
+.set-row .set-t{font-size:14.5px;font-weight:500}
+.set-row .set-d{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin-top:1px}
+.set-row button{flex:none}
+.set-val{font-size:12.5px;color:var(--ink-2);font-family:var(--mono)}
+.sec-note{font-size:12.5px;color:var(--ink-3);line-height:1.7;padding:10px 4px 0}
+.sync-status{
+  display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);
+  background:var(--bg-deep);border-radius:999px;padding:4px 12px;
+}
+.sync-status i{width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.sync-status.idle i{background:var(--ink-3)}
+.sync-status.ok i{background:var(--green)}
+.sync-status.err i{background:var(--danger)}
+.sync-status.busy i{background:var(--amber);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.switch{position:relative;width:46px;height:27px;flex:none;border-radius:999px;background:var(--line-2);transition:background .18s ease}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s ease}
+.switch[aria-checked="true"]{background:var(--green)}
+.switch[aria-checked="true"]::after{transform:translateX(19px)}
+.about-block{padding:18px;font-size:13px;color:var(--ink-2);line-height:1.9}
+.about-block h4{font-family:var(--serif);font-size:14.5px;color:var(--ink);margin:14px 0 4px}
+.about-block h4:first-child{margin-top:0}
+.about-block code{font-family:var(--mono);font-size:12px;background:var(--bg-deep);border-radius:5px;padding:1px 6px;color:var(--green-deep)}
+
+/* ============ 弹窗与提示 ============ */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(38,35,29,.45);z-index:100;display:none;
+  align-items:flex-end;justify-content:center;
+}
+@media (min-width:560px){.modal-mask{align-items:center;padding:20px}}
+.modal-mask.show{display:flex;animation:fadeIn .16s ease}
+.modal{
+  width:100%;max-width:440px;max-height:86vh;overflow:auto;background:var(--card);
+  border-radius:22px 22px 16px 16px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+  animation:slideUp .2s ease;
+}
+@media (min-width:560px){.modal{border-radius:18px;animation:fadeIn .16s ease}}
+@keyframes slideUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+.modal h3{font-family:var(--serif);font-size:18px;font-weight:700;margin-bottom:10px}
+.modal .modal-body{font-size:14px;color:var(--ink-2);line-height:1.75;margin-bottom:20px}
+.modal .modal-body b{color:var(--ink)}
+.modal .modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.toast{
+  position:fixed;left:50%;bottom:calc(30px + var(--sab));transform:translateX(-50%) translateY(10px);
+  background:var(--ink);color:#F4F1E6;font-size:13.5px;padding:11px 18px;border-radius:12px;
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:120;
+  max-width:86vw;box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--danger)}
+.toast.ok{background:var(--green)}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn .spinner{width:15px;height:15px}
+input[type="password"]{letter-spacing:2px}
+@media (max-width:640px){
+  .input,.textarea,input[type="text"],input[type="password"],input[type="date"],select{font-size:16px}
+  .pw-visual .input{padding-right:48px}
+}
+.plain-list{list-style:none;padding:2px 0 0 2px}
+.plain-list li{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--ink-2);line-height:1.8}
+.plain-list li::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:var(--seal);transform:translateY(-2px)}
+.mono{font-family:var(--mono)}
+
+/* ============ 过渡动效 ============ */
+.fab{animation:fabIn .42s cubic-bezier(.2,.9,.3,1.15) .12s both}
+@keyframes fabIn{from{opacity:0;transform:translateY(16px) scale(.82)}to{opacity:1;transform:none}}
+
+/* 列表卡片错峰浮现 */
+.list-anim .entry-card{animation:cardIn .34s cubic-bezier(.21,.8,.32,1) both}
+.list-anim .month-label{animation:fadeIn .3s ease both}
+.list-anim .empty-state{animation:fadeIn .3s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 编辑器内容错峰上浮 */
+.ed-stagger>*{animation:edUp .34s cubic-bezier(.21,.8,.32,1) both}
+.ed-stagger>*:nth-child(1){animation-delay:.02s}
+.ed-stagger>*:nth-child(2){animation-delay:.06s}
+.ed-stagger>*:nth-child(3){animation-delay:.1s}
+.ed-stagger>*:nth-child(4){animation-delay:.14s}
+.ed-stagger>*:nth-child(5){animation-delay:.18s}
+@keyframes edUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+/* 保存反馈 */
+.save-state{display:inline-flex;align-items:center;gap:6px}
+.save-state .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse 1s infinite}
+.save-state .ico-check path{stroke-dasharray:24;stroke-dashoffset:24;animation:checkDraw .32s ease .05s forwards}
+@keyframes checkDraw{to{stroke-dashoffset:0}}
+@keyframes pulse{50%{opacity:.3}}
+@keyframes flashRing{0%{box-shadow:0 0 0 0 rgba(46,94,74,.35)}100%{box-shadow:0 0 0 12px rgba(46,94,74,0)}}
+.save-flash{animation:flashRing .42s ease}
+
+/* 弹窗桌面端缩放浮现 */
+@media (min-width:560px){
+  .modal{animation:modalIn .22s cubic-bezier(.21,.8,.32,1) both}
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+
+.editor-top{transition:box-shadow .2s ease}
+
+/* ============ 日期选择美化 ============ */
+.ed-date-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ed-date{transition:border-color .15s ease,background .15s ease}
+.ed-date:hover{border-color:var(--green);background:var(--green-soft)}
+.ed-date input{color-scheme:light}
+.ed-date input::-webkit-calendar-picker-indicator{opacity:.45;cursor:pointer;transition:opacity .15s ease}
+.ed-date:hover input::-webkit-calendar-picker-indicator{opacity:.9}
+.btn-today{font-size:13px;color:var(--green);border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;background:var(--card);transition:all .15s ease}
+.btn-today:hover{background:var(--green-soft);border-color:var(--green)}
+.btn-today:active{transform:translateY(1px)}
+
+/* 自动锁定选项（替代原生下拉框） */
+.lock-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:250px}
+.lock-chip{font-size:12.5px;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:6px 11px;background:var(--card);transition:all .15s ease}
+.lock-chip:hover{border-color:var(--green);color:var(--green)}
+.lock-chip.active{border-color:var(--green);background:var(--green);color:#F4F1E6}
+
+/* 标签：已选 + 预设 + 自定义 */
+.ed-tags-block{margin-top:20px}
+.ed-tags-label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:9px}
+.tag-list{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.tag-list:empty{display:none}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--green-deep);background:var(--green-soft);border-radius:999px;padding:5px 5px 5px 12px;animation:tagIn .18s ease both}
+@keyframes tagIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.tag-chip button{width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--green-deep);opacity:.55;transition:opacity .15s ease,background .15s ease}
+.tag-chip button:hover{background:rgba(46,94,74,.16);opacity:1}
+.tag-chip button svg{width:11px;height:11px}
+.preset-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.preset-tag{font-size:12.5px;color:var(--ink-2);border:1px dashed var(--line-2);border-radius:999px;padding:5px 11px;background:var(--card);transition:all .15s ease}
+.preset-tag:hover{border-color:var(--green);color:var(--green);border-style:solid}
+.editor-top{transition:box-shadow .2s ease}
+
+/* ============ 自动备份提醒 ============ */
+.backup-banner{margin:14px 0 0}
+.backup-banner-in{display:flex;align-items:center;gap:10px;border:1px solid rgba(178,58,46,.28);background:rgba(178,58,46,.05);border-radius:12px;padding:10px 14px}
+.backup-banner svg{width:18px;height:18px;flex:none;color:#B23A2E;opacity:.85}
+.backup-banner-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.backup-banner-txt b{font-size:13.5px;color:var(--ink)}
+.backup-banner-txt span{font-size:12px;color:var(--ink-3)}
+.btn-sm{padding:6px 12px;font-size:12.5px;flex:none}
+.backup-later{flex:none;font-size:12.5px;color:var(--ink-3);padding:6px 8px;border-radius:8px;transition:color .15s ease}
+.backup-later:hover{color:var(--ink-2)}
+
+/* ============ 月度回顾 ============ */
+.stats-nav{display:flex;align-items:center;justify-content:space-between;padding:4px 0 12px}
+.stats-month{font-size:15px;font-weight:600;color:var(--ink)}
+.stats-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stats-cell{background:var(--card);border:1px solid var(--line-2);border-radius:10px;padding:10px 4px;text-align:center;display:flex;flex-direction:column;gap:3px}
+.stats-cell b{font-size:17px;color:var(--ink);font-family:var(--serif);line-height:1.1}
+.stats-cell span{font-size:11px;color:var(--ink-3)}
+.stats-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-wd-row{display:contents}
+.cal-wd{font-size:11px;color:var(--ink-3);text-align:center;padding:2px 0 6px}
+.cal-day{position:relative;min-height:38px;border-radius:9px;background:var(--card);border:1px solid var(--line-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12.5px;color:var(--ink-2)}
+.cal-day.blank{background:transparent;border-color:transparent}
+.cal-day.today{border-color:var(--green);color:var(--green);font-weight:600}
+.cal-day.has{cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.cal-day.has:hover{border-color:var(--green);background:var(--green-soft)}
+.mood-dot{width:6px;height:6px;border-radius:50%;display:block}
+.cal-count{font-size:9px;color:var(--ink-3);line-height:1}
+.stats-moods{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.stats-mood-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);border:1px solid var(--line-2);background:var(--card);border-radius:999px;padding:5px 10px}
+.stats-mood-chip i{width:8px;height:8px;border-radius:50%;flex:none}
+.stats-mood-chip b{font-size:12px;color:var(--ink);min-width:10px;text-align:center}
+.stats-mood-chip.zero{opacity:.45}
+
+/* 日期筛选条 */
+.date-filter{margin:12px 0 0}
+.date-filter-in{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--ink);border:1px solid rgba(178,58,46,.28);background:rgba(178,58,46,.05);border-radius:10px;padding:9px 14px}
+.date-filter-in button{font-size:12.5px;color:#B23A2E;padding:4px 8px;border-radius:6px;transition:background .15s ease}
+.backup-later:hover{color:var(--ink-2)}
+
+/* ============ 图案快捷解锁 ============ */
+.pattern-wrap{display:flex;justify-content:center;padding:6px 0}
+.pattern-grid{width:min(260px,64vw);height:min(260px,64vw);display:block;touch-action:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+.pat-dot{fill:var(--card);stroke:var(--line-2);stroke-width:2;transition:fill .12s ease,stroke .12s ease}
+.pat-dot.on{fill:var(--green);stroke:var(--green)}
+.pat-line{fill:none;stroke:var(--green);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.pat-last{fill:none;stroke:var(--green);stroke-width:2;opacity:.5}
+.pattern-hint{font-size:13px;color:var(--ink-2);text-align:center;margin:8px 0 0}
+.pattern-hint.err{color:#B23A2E}
+.link-btn{display:block;margin:12px auto 0;font-size:12.5px;color:var(--ink-3);text-decoration:underline;transition:color .15s ease}
+.link-btn:hover{color:var(--green)}
+.pat-modal .pattern-wrap{padding:10px 0 4px}
+
+/* ============ 恢复密钥 ============ */
+.rec-key{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;letter-spacing:.5px;line-height:2;word-break:break-all;background:var(--card);border:1px solid var(--line-2);border-radius:12px;padding:14px 12px;text-align:center;margin:14px 0 12px;user-select:all;-webkit-user-select:all}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ================= 欢迎页（首次创建密码） ================= -->
+  <section id="view-welcome" class="view">
+    <div class="screen-welcome">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M14 4v5h5"/><path d="M8 12h8M8 16h5"/></svg>
+        </div>
+        <div class="brand-name">安全日记本</div>
+      </div>
+
+      <h1 class="hero-title">你的日记，<em>只有你能打开。</em></h1>
+      <p class="hero-sub">这是一个本地优先、端到端加密的日记本。所有内容在你自己的设备上加密后才存储与同步，开发商、云服务商、甚至拿到你手机的人，都读不到一个字。</p>
+
+      <div class="sec-points">
+        <div class="sec-point">
+          <i class="dot"></i>
+          <div><b>设备端 AES-256 加密</b><span>每条日记使用随机密钥加密，密钥由你的主密码经 60 万次密钥派生生成，只在内存中存在，从不落盘。</span></div>
+        </div>
+        <div class="sec-point">
+          <i class="dot"></i>
+          <div><b>零知识同步</b><span>数据加密完成后才上传到 GitHub 私有仓库，仓库里只有密文；服务器被攻破、仓库被泄露都无法解读内容。</span></div>
+        </div>
+        <div class="sec-point">
+          <i class="dot"></i>
+          <div><b>无账号、无追踪</b><span>不注册任何账号，不收集任何数据，纯本地运行。可随时导出加密备份到自己的任何存储。</span></div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <div><b>密码不可找回。</b>忘记主密码后，只能靠创建时保存的「恢复密钥」解锁本机；连它也丢了，日记将永久无法解密。请使用记得住的强密码，并妥善保存恢复密钥与加密备份。</div>
+      </div>
+
+      <div class="card" style="padding:22px">
+        <div class="field">
+          <label for="pw-create">设置主密码（至少 8 位）</label>
+          <div class="pw-visual">
+            <input id="pw-create" class="input" type="password" placeholder="输入主密码" autocomplete="new-password">
+            <button class="pw-eye" id="pw-eye-create" type="button" aria-label="显示密码">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="strength" id="strength"><i></i><i></i><i></i><i></i></div>
+          <div class="strength-label" id="strength-label">建议混合大小写、数字与符号</div>
+        </div>
+        <div class="field">
+          <label for="pw-confirm">确认主密码</label>
+          <div class="pw-visual">
+            <input id="pw-confirm" class="input" type="password" placeholder="再次输入" autocomplete="new-password">
+            <button class="pw-eye" id="pw-eye-confirm" type="button" aria-label="显示密码">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button id="btn-create-vault" class="btn btn-primary btn-block" style="margin-top:4px">创建加密日记本</button>
+        <p class="hint" style="margin-top:12px;text-align:center">创建过程在你的设备本地完成，约需 1~3 秒。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 锁屏 ================= -->
+  <section id="view-lock" class="view">
+    <div class="screen-lock">
+      <div class="lock-seal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.4"/></svg>
+      </div>
+      <h2 class="lock-title">日记本已锁定</h2>
+      <p class="lock-sub" id="lock-sub">输入主密码解锁，密钥只在解锁期间驻留内存</p>
+      <div class="lock-form">
+        <div class="lock-error" id="lock-error"></div>
+        <div id="lock-pw-box">
+          <div class="pw-visual">
+            <input id="pw-unlock" class="input" type="password" placeholder="主密码" autocomplete="current-password" style="margin-bottom:14px">
+            <button class="pw-eye" id="pw-eye-unlock" type="button" aria-label="显示密码">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <button id="btn-unlock" class="btn btn-green btn-block">解锁</button>
+        </div>
+        <div id="lock-pattern-box" style="display:none">
+          <div class="pattern-wrap">
+            <svg id="pattern-svg" viewBox="0 0 300 300" class="pattern-grid" aria-label="图案解锁"></svg>
+          </div>
+          <p class="pattern-hint" id="pattern-hint">绘制图案解锁</p>
+        </div>
+        <div class="attempt-wait" id="attempt-wait" style="display:none"></div>
+        <button type="button" class="link-btn" id="btn-use-password" style="display:none">使用主密码解锁</button>
+        <button type="button" class="link-btn" id="btn-use-pattern" style="display:none">使用图案解锁</button>
+        <button type="button" class="link-btn" id="btn-use-recovery" style="display:none">忘记主密码？用恢复密钥解锁</button>
+      </div>
+      <div class="lock-meta">
+        <span class="ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          全部数据已加密
+        </span>
+        <span id="lock-meta-count"></span>
+        <span id="lock-meta-sync"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 主界面（列表） ================= -->
+  <section id="view-list" class="view">
+    <header class="app-header">
+      <div class="wrap inner">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M14 4v5h5"/><path d="M8 12h8M8 16h5"/></svg>
+        </div>
+        <div class="header-title">我的日记</div>
+        <span class="header-date" id="header-date"></span>
+        <button class="icon-btn" id="btn-lock" aria-label="立即锁定" title="立即锁定">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-stats" aria-label="月度回顾" title="月度回顾">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7" rx="1"/><rect x="12" y="7" width="3" height="11" rx="1"/><rect x="17" y="4" width="3" height="14" rx="1"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-settings" aria-label="设置" title="设置">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.08a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="backup-banner" class="backup-banner" style="display:none">
+      <div class="wrap backup-banner-in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+        <div class="backup-banner-txt">
+          <b>建议导出加密备份</b>
+          <span id="backup-banner-sub"></span>
+        </div>
+        <button type="button" class="btn btn-green btn-sm" id="backup-now">现在导出</button>
+        <button type="button" class="backup-later" id="backup-later">稍后</button>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search" class="input" type="text" placeholder="搜索标题、内容、标签…">
+        <button class="search-clear" id="search-clear" aria-label="清除搜索">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="list-container"></div>
+
+    <div class="list-footer"></div>
+  </section>
+
+  <div id="date-filter" class="date-filter" style="display:none">
+    <div class="wrap date-filter-in">
+      <span id="date-filter-text"></span>
+      <button type="button" id="date-filter-clear">清除筛选</button>
+    </div>
+  </div>
+
+  <button class="fab" id="btn-new-entry" aria-label="写日记" title="写日记" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <!-- ================= 月度回顾 ================= -->
+  <section id="view-stats" class="view">
+    <div class="settings-head">
+      <button class="icon-btn" id="stats-back" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2>月度回顾</h2>
+    </div>
+
+    <div class="sec-title">回顾</div>
+    <div class="set-card">
+      <div class="stats-nav">
+        <button class="icon-btn" id="stats-prev" aria-label="上个月" title="上个月">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="stats-month" id="stats-month"></div>
+        <button class="icon-btn" id="stats-next" aria-label="下个月" title="下个月">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="stats-summary">
+        <div class="stats-cell"><b id="st-entries">0</b><span>日记篇数</span></div>
+        <div class="stats-cell"><b id="st-days">0</b><span>记录天数</span></div>
+        <div class="stats-cell"><b id="st-streak">0</b><span>最长连续</span></div>
+        <div class="stats-cell"><b id="st-words">0</b><span>字数</span></div>
+      </div>
+
+      <div class="stats-cal" id="stats-cal"></div>
+
+      <div class="stats-moods" id="stats-moods"></div>
+    </div>
+  </section>
+
+  <!-- ================= 编辑器 ================= -->
+  <section id="view-editor" class="view">
+    <header class="editor-top">
+      <div class="wrap inner">
+        <button class="icon-btn" id="ed-back" aria-label="返回">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="header-title" id="ed-mode">写日记</div>
+        <div class="spacer"></div>
+        <button id="btn-save" class="btn btn-primary" style="padding:8px 16px;font-size:14px">保存</button>
+      </div>
+    </header>
+
+    <form class="editor-form ed-stagger" id="editor-form" autocomplete="off">
+      <div class="ed-date-row">
+        <div class="ed-date-group">
+          <label class="ed-date">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            <input type="date" id="ed-date">
+          </label>
+          <button type="button" class="btn-today" id="btn-today">今天</button>
+        </div>
+        <div class="mood-row" id="mood-row"></div>
+      </div>
+
+      <input id="ed-title" class="ed-title-input" type="text" placeholder="标题（可留空）">
+
+      <textarea id="ed-content" class="ed-content" placeholder="今天发生了什么？写下来，只有你能看到。"></textarea>
+
+      <div class="ed-tags-block">
+        <label class="ed-tags-label">标签</label>
+        <div id="ed-tag-list" class="tag-list"></div>
+        <div class="preset-row" id="tag-presets"></div>
+        <input id="ed-tags" class="ed-tags-input" type="text" placeholder="输入自定义标签，回车添加" autocomplete="off">
+      </div>
+
+      <div class="ed-meta">
+        <span class="save-state" id="ed-save-state"></span>
+        <span id="ed-words"></span>
+        <span class="spacer"></span>
+        <div class="ed-actions">
+          <button type="button" class="delete-entry" id="btn-delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+            删除
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================= 设置 ================= -->
+  <section id="view-settings" class="view">
+    <div class="settings-head">
+      <button class="icon-btn" id="set-back" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h2>设置</h2>
+    </div>
+
+    <div class="sec-title">安全</div>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">加密方案</div>
+          <div class="set-d"><span class="mono">AES-256-GCM</span> · <span class="mono">PBKDF2-SHA256</span> · 600,000 次迭代</div>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/><path d="M8.2 13.9 7 23l5-3 5 3-1.2-9.1"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">修改主密码</div>
+          <div class="set-d">需要重新加密全部日记，过程中请勿关闭页面</div>
+        </div>
+        <button class="btn" id="btn-changepw" style="padding:8px 14px;font-size:13.5px">修改</button>
+      </div>
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="2.2"/><circle cx="19" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M7.2 5h9.6M5 7.2v9.6M19 7.2v9.6M7.2 19h9.6"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">图案快捷解锁</div>
+          <div class="set-d" id="quick-desc">绘制图案快速解锁本机</div>
+        </div>
+        <button class="btn" id="btn-quick" style="padding:8px 14px;font-size:13.5px">设置</button>
+      </div>
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.8 12.2 8.2-8.2M16 6l3 3M13.5 8.5l2.5 2.5"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">恢复密钥</div>
+          <div class="set-d" id="rec-desc">忘记主密码时的本机解锁凭证</div>
+        </div>
+        <button class="btn" id="btn-rec" style="padding:8px 14px;font-size:13.5px">生成</button>
+      </div>
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">自动锁定</div>
+          <div class="set-d">无操作超过设定时间后自动锁定</div>
+        </div>
+        <div class="lock-chips" id="auto-lock-row" role="radiogroup" aria-label="自动锁定时间"></div>
+      </div>
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">立即锁定</div>
+          <div class="set-d">清除内存中的密钥并回到锁屏</div>
+        </div>
+        <button class="btn" id="btn-lock-now" style="padding:8px 14px;font-size:13.5px">锁定</button>
+      </div>
+    </div>
+
+    <div class="sec-title">多设备同步</div>
+    <div class="set-card">
+      <div class="set-row" style="flex-wrap:wrap;gap:10px">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">GitHub 私有仓库同步</div>
+          <div class="set-d">数据先加密后上传，GitHub 只保存密文（零知识）</div>
+        </div>
+        <span class="sync-status idle" id="sync-status"><i></i><span id="sync-status-text">未配置</span></span>
+      </div>
+      <div style="padding:6px 18px 14px">
+        <div class="field" style="margin-bottom:12px">
+          <label for="gh-owner">GitHub 用户名</label>
+          <input id="gh-owner" class="input" type="text" placeholder="例如 octocat" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label for="gh-repo">私有仓库名</label>
+          <input id="gh-repo" class="input" type="text" placeholder="例如 secure-diary（需已创建为 Private）" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label for="gh-token">访问令牌（PAT）</label>
+          <input id="gh-token" class="input" type="password" placeholder="Fine-grained token，仅授权该仓库 Contents 读写" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="hint" style="margin-bottom:14px">
+          令牌仅保存在本机浏览器中，只用于直接访问 GitHub API，不会上传到任何其他地方。建议使用
+          <b>Fine-grained personal access token</b>，仅授权这一个仓库的 <span class="mono">Contents: Read and write</span> 权限。
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-green" id="btn-save-sync" style="flex:1">保存并连接</button>
+          <button class="btn" id="btn-sync-now" disabled>立即同步</button>
+        </div>
+        <div class="set-row" style="margin-top:6px">
+          <div class="set-main">
+            <div class="set-t">自动同步</div>
+            <div class="set-d">解锁后每 30 分钟自动同步一次，回到本页面时也会检查</div>
+          </div>
+          <div class="switch" id="switch-auto-sync" role="switch" aria-checked="true" tabindex="0" aria-label="自动同步"></div>
+        </div>
+        <p class="hint" id="last-sync" style="margin-top:12px"></p>
+      </div>
+    </div>
+
+    <div class="sec-title">备份</div>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">导出加密备份</div>
+          <div class="set-d" id="export-desc">导出一个加密文件，可存入网盘/U盘。导入时需输入主密码</div>
+        </div>
+        <button class="btn" id="btn-export" style="padding:8px 14px;font-size:13.5px">导出</button>
+      </div>
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">导入加密备份</div>
+          <div class="set-d">从备份文件恢复，与本地内容按版本智能合并</div>
+        </div>
+        <button class="btn" id="btn-import" style="padding:8px 14px;font-size:13.5px">导入</button>
+        <input type="file" id="file-import" accept=".vault,application/json" style="display:none">
+      </div>
+    </div>
+
+    <div class="sec-title">安全模型</div>
+    <div class="set-card"><div class="about-block" id="about-block"></div></div>
+
+    <div class="sec-title">危险区</div>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></div>
+        <div class="set-main">
+          <div class="set-t">清除全部数据</div>
+          <div class="set-d">删除本机全部日记与密钥材料，不可恢复。请先确认已导出备份</div>
+        </div>
+        <button class="btn btn-danger" id="btn-delete-all" style="padding:8px 14px;font-size:13.5px">清除</button>
+      </div>
+    </div>
+
+    <div class="list-footer"></div>
+  </section>
+</div>
+
+<!-- 通用弹窗 -->
+<div class="modal-mask" id="modal-mask">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modal-title"></h3>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- 轻提示 -->
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   核心加密与数据模型 —— 纯逻辑层（不依赖 DOM，可独立单元测试）
+   ================================================================ */
+/*__PURE__START__*/
+const KDF_ITER = 600000;
+const KDF_ALGO = "PBKDF2-SHA256";
+const APP_ID = "secure-diary";
+const CRYPTO_VER = 1;
+const VAULT_DIR = "vault";
+const ENTRY_DIR = "vault/entries";
+
+const _te = new TextEncoder();
+const _td = new TextDecoder();
+
+/* ---------- 编码工具 ---------- */
+function bytesToB64(bytes) {
+  let bin = "";
+  const CH = 0x8000;
+  for (let i = 0; i < bytes.length; i += CH) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+  }
+  return btoa(bin);
+}
+function b64ToBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function uuid() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  const h = Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
+  return h.slice(0,8) + "-" + h.slice(8,12) + "-" + h.slice(12,16) + "-" + h.slice(16,20) + "-" + h.slice(20);
+}
+
+/* ---------- 密钥派生与加解密（WebCrypto） ---------- */
+async function deriveMasterBits(password, salt, iter) {
+  const base = await crypto.subtle.importKey("raw", _te.encode(password), "PBKDF2", false, ["deriveBits"]);
+  return crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: iter || KDF_ITER, hash: "SHA-256" },
+    base, 256
+  );
+}
+async function importAesKey(raw) {
+  return crypto.subtle.importKey("raw", raw, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+async function deriveDataKey(masterBits) {
+  const hk = await crypto.subtle.importKey("raw", masterBits, "HKDF", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "HKDF", hash: "SHA-256", salt: _te.encode("diary-data-v1"), info: _te.encode("aes256gcm-key") },
+    hk, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+  );
+}
+async function encryptEnv(key, obj, aad) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv, additionalData: _te.encode(aad || "") },
+    key, _te.encode(JSON.stringify(obj))
+  );
+  return { v: CRYPTO_VER, iv: bytesToB64(iv), ct: bytesToB64(new Uint8Array(ct)) };
+}
+async function decryptEnv(key, env, aad) {
+  if (!env || !env.iv || !env.ct) throw new Error("损坏的密文结构");
+  const pt = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: b64ToBytes(env.iv), additionalData: _te.encode(aad || "") },
+    key, b64ToBytes(env.ct)
+  );
+  return JSON.parse(_td.decode(pt));
+}
+
+/* ---------- 密码校验标记 ---------- */
+async function makeCheck(dataKey) {
+  return encryptEnv(dataKey, { app: APP_ID, v: 1 }, "vault-check-v1");
+}
+async function verifyCheck(dataKey, check) {
+  try {
+    const r = await decryptEnv(dataKey, check, "vault-check-v1");
+    return !!(r && r.app === APP_ID);
+  } catch (e) { return false; }
+}
+
+/* ---------- 版本号与清单（同步合并用） ---------- */
+let DEVICE_ID = "unknown";
+function mkVer(ts, dev) {
+  return { ts: ts || Date.now(), dev: dev || DEVICE_ID || "d" };
+}
+function cmpVer(a, b) {
+  if (a.ts !== b.ts) return a.ts - b.ts;
+  return a.dev < b.dev ? -1 : a.dev > b.dev ? 1 : 0;
+}
+function newManifest() { return { v: 1, entries: {} }; }
+function mergeManifest(local, remote) {
+  const out = newManifest();
+  const ids = new Set([...Object.keys(local.entries), ...Object.keys(remote.entries)]);
+  for (const id of ids) {
+    const a = local.entries[id];
+    const b = remote.entries[id];
+    if (!a) { out.entries[id] = b; continue; }
+    if (!b) { out.entries[id] = a; continue; }
+    out.entries[id] = cmpVer(a.ver, b.ver) >= 0 ? a : b;
+  }
+  return out;
+}
+
+/* ---------- 日记条目模型 ---------- */
+function newEntryPlain(partial) {
+  const now = Date.now();
+  return Object.assign({
+    title: "", date: "", content: "", mood: "", tags: [],
+    createdAt: now, updatedAt: now
+  }, partial || {});
+}
+function envVersion(env) { return { ts: env.ts, dev: env.dev }; }
+/*__PURE__END__*/
+
+/* ================================================================
+   IndexedDB 存储层
+   ================================================================ */
+const DB_NAME = "secure-diary-db";
+const DB_VER = 1;
+let _db = null;
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+      if (!db.objectStoreNames.contains("entries")) db.createObjectStore("entries");
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+function idbReq(req) {
+  return new Promise((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(store, key) {
+  const db = await ensureDb();
+  return idbReq(db.transaction(store, "readonly").objectStore(store).get(key));
+}
+async function idbPut(store, key, val) {
+  const db = await ensureDb();
+  return idbReq(db.transaction(store, "readwrite").objectStore(store).put(val, key));
+}
+async function idbDelete(store, key) {
+  const db = await ensureDb();
+  return idbReq(db.transaction(store, "readwrite").objectStore(store).delete(key));
+}
+async function idbClear(store) {
+  const db = await ensureDb();
+  return idbReq(db.transaction(store, "readwrite").objectStore(store).clear());
+}
+async function idbAll(store) {
+  const db = await ensureDb();
+  return idbReq(db.transaction(store, "readonly").objectStore(store).getAll());
+}
+async function ensureDb() {
+  if (!_db) _db = await idbOpen();
+  return _db;
+}
+
+/* ================================================================
+   应用状态
+   ================================================================ */
+const state = {
+  dataKey: null,        // CryptoKey，解锁后驻留内存
+  masterBits: null,     // 主密钥原始字节（仅内存，供快捷解锁包裹）
+  check: null,          // 密码校验密文
+  salt: null,           // KDF 盐
+  manifest: newManifest(),
+  entries: new Map(),   // id -> {env, plain}
+  unlocked: false,
+  settings: { autoLockMin: 5, autoSync: true, gh: { owner: "", repo: "", token: "" }, lastSync: null },
+};
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(lsGet("sd-settings") || "{}");
+    Object.assign(state.settings, s);
+  } catch (e) {}
+  const d = lsGet("sd-device");
+  if (d) DEVICE_ID = d;
+  else { DEVICE_ID = uuid().slice(0, 8); lsSet("sd-device", DEVICE_ID); }
+}
+function saveSettings() {
+  lsSet("sd-settings", JSON.stringify(state.settings));
+}
+
+/* ================================================================
+   日记本生命周期
+   ================================================================ */
+async function createVault(password) {
+  const saltB = crypto.getRandomValues(new Uint8Array(16));
+  const salt = bytesToB64(saltB);
+  const bits = await deriveMasterBits(password, saltB, KDF_ITER);
+  const dk = await deriveDataKey(bits);
+  const check = await makeCheck(dk);
+  await idbPut("meta", "salt", salt);
+  await idbPut("meta", "check", check);
+  await idbPut("meta", "manifest", newManifest());
+  state.salt = salt; state.check = check; state.dataKey = dk; state.masterBits = bits;
+  state.masterBits = bits;
+  state.manifest = newManifest(); state.unlocked = true;
+}
+
+async function unlockVault(password) {
+  if (!state.salt) throw new Error("尚未创建日记本");
+  const bits = await deriveMasterBits(password, b64ToBytes(state.salt), KDF_ITER);
+  const dk = await deriveDataKey(bits);
+  const ok = await verifyCheck(dk, state.check);
+  if (!ok) throw new Error("密码错误");
+  state.dataKey = dk; state.masterBits = bits; state.unlocked = true;
+  state.manifest = (await idbGet("meta", "manifest")) || newManifest();
+  await loadAllEntries();
+}
+
+function lockVault() {
+  state.dataKey = null; state.unlocked = false;
+  state.entries.clear();
+}
+
+async function loadAllEntries() {
+  const all = await idbAll("entries");
+  state.entries.clear();
+  for (const rec of all) {
+    if (!rec || !rec.env) continue;
+    state.entries.set(rec.env.id || rec.key, { env: rec.env, plain: null });
+  }
+}
+
+/* 并发受限的解密全部条目（锁屏 -> 列表的必经步骤） */
+async function decryptAllEntries(onProgress) {
+  const ids = [...state.entries.keys()];
+  const CONC = 24;
+  let done = 0;
+  for (let i = 0; i < ids.length; i += CONC) {
+    const batch = ids.slice(i, i + CONC);
+    await Promise.all(batch.map(async (id) => {
+      const rec = state.entries.get(id);
+      if (!rec || rec.plain) return;
+      try { rec.plain = await decryptEnv(state.dataKey, rec.env, id); }
+      catch (e) { rec.plain = null; }
+    }));
+    done += batch.length;
+    if (onProgress && ids.length > 100) onProgress(Math.round(done / ids.length * 100));
+  }
+}
+
+async function saveEntry(id, plain) {
+  const env = await encryptEnv(state.dataKey, plain, id);
+  env.id = id; env.ts = Date.now(); env.dev = DEVICE_ID;
+  await idbPut("entries", id, { env, ver: envVersion(env) });
+  state.entries.set(id, { env, plain });
+  state.manifest.entries[id] = { ver: envVersion(env), deleted: false };
+  await idbPut("meta", "manifest", state.manifest);
+  return env;
+}
+
+async function deleteEntryLocally(id) {
+  state.manifest.entries[id] = { ver: mkVer(), deleted: true };
+  await idbPut("meta", "manifest", state.manifest);
+  await idbDelete("entries", id);
+  state.entries.delete(id);
+}
+
+/* 一篇"真日记" = 标题 / 正文 / 标签至少有一项非空；空壳（一条字都没有）不算日记 */
+function hasDiaryContent(p) {
+  return !!((p && p.title && p.title.trim()) || (p && p.content && p.content.trim()) || ((p && p.tags) || []).length);
+}
+async function cleanupGhostEntries() {
+  if (!state.unlocked) return;
+  let n = 0;
+  try {
+    for (const [id, rec] of state.entries) {
+      if (!rec || !rec.plain || hasDiaryContent(rec.plain)) continue;
+      await deleteEntryLocally(id);
+      n++;
+    }
+  } catch (e) { console.warn("cleanup ghosts failed", e); }
+  if (n > 0) showToast(`已清理 ${n} 条空白日记记录`, "ok");
+}
+
+async function changePassword(newPw) {
+  const saltB = crypto.getRandomValues(new Uint8Array(16));
+  const salt = bytesToB64(saltB);
+  const bits = await deriveMasterBits(newPw, saltB, KDF_ITER);
+  const dk = await deriveDataKey(bits);
+  const check = await makeCheck(dk);
+  const ids = [...state.entries.keys()];
+  for (let i = 0; i < ids.length; i++) {
+    const rec = state.entries.get(ids[i]);
+    if (!rec || !rec.plain) continue;
+    const env = await encryptEnv(dk, rec.plain, ids[i]);
+    env.id = ids[i]; env.ts = rec.env.ts; env.dev = rec.env.dev;
+    await idbPut("entries", ids[i], { env, ver: envVersion(env) });
+    rec.env = env;
+    if (i % 40 === 0) await tick();
+  }
+  await idbPut("meta", "salt", salt);
+  await idbPut("meta", "check", check);
+  state.salt = salt; state.check = check; state.dataKey = dk; state.masterBits = bits;
+}
+function tick() { return new Promise(r => setTimeout(r, 0)); }
+
+/* ================================================================
+   GitHub 加密同步（零知识：服务端只见密文）
+   ================================================================ */
+async function ghApi(method, path, bodyObj) {
+  const { owner, repo, token } = state.settings.gh;
+  if (!owner || !repo || !token) throw new Error("请先在设置中填写 GitHub 同步信息");
+  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${path}`;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+  const opts = { method, headers };
+  if (bodyObj !== undefined) opts.body = JSON.stringify(bodyObj);
+  const res = await fetch(url, opts);
+  if (res.status === 404) { const e = new Error("not_found"); e.status = 404; throw e; }
+  if (!res.ok) {
+    let msg = `GitHub 返回 ${res.status}`;
+    try { const j = await res.json(); if (j.message) msg = j.message; } catch (e) {}
+    const err = new Error(msg); err.status = res.status; throw err;
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+function decodeFile(content) {
+  return JSON.parse(_td.decode(b64ToBytes(content)));
+}
+
+async function testGitHub() {
+  const u = await ghApi("GET", "");
+  const r = await ghApi("GET", "");
+  return { user: u.login, repo: r.full_name, private: !!r.private };
+}
+
+async function syncNow(silent) {
+  if (!state.unlocked) throw new Error("请先解锁");
+  setSyncStatus("busy", "同步中…");
+  try {
+    const mfPath = `contents/${VAULT_DIR}/manifest.enc`;
+    let rm = null, rmEnv = null, manifestSha = null;
+    try {
+      const mf = await ghApi("GET", mfPath);
+      manifestSha = mf.sha;
+      rmEnv = decodeFile(mf.content);
+      rm = await decryptEnv(state.dataKey, rmEnv, "manifest-v1");
+    } catch (e) {
+      if (e.status !== 404) throw e;
+    }
+    if (rm && rm.v !== 1) throw new Error("远端清单格式不兼容");
+
+    const merged = mergeManifest(state.manifest, rm || newManifest());
+
+    /* ---- 拉取：本地缺失或版本更旧的条目 ---- */
+    for (const id of Object.keys(merged.entries)) {
+      const meta = merged.entries[id];
+      const localVer = state.manifest.entries[id] ? state.manifest.entries[id].ver : null;
+      const rec = state.entries.get(id);
+      if (meta.deleted) {
+        if (localVer && cmpVer(meta.ver, localVer) > 0) {
+          await idbDelete("entries", id); state.entries.delete(id);
+          state.manifest.entries[id] = meta;
+        }
+        continue;
+      }
+      if (rec && localVer && cmpVer(meta.ver, localVer) <= 0) continue;
+      try {
+        const f = await ghApi("GET", `contents/${ENTRY_DIR}/${id}.enc`);
+        const env = decodeFile(f.content);
+        const plain = await decryptEnv(state.dataKey, env, id);
+        await idbPut("entries", id, { env, ver: envVersion(env) });
+        state.entries.set(id, { env, plain });
+        state.manifest.entries[id] = meta;
+      } catch (e) {
+        if (e.status === 404) continue; // 条目已被删除，忽略
+        throw e;
+      }
+    }
+
+    /* ---- 推送：远端缺失或本地更新的条目 / 墓碑 ---- */
+    for (const [id, meta] of Object.entries(state.manifest.entries)) {
+      const remoteMeta = rm && rm.entries[id];
+      if (remoteMeta && cmpVer(meta.ver, remoteMeta.ver) <= 0) continue;
+      const p = `${ENTRY_DIR}/${id}.enc`;
+      if (meta.deleted) {
+        try {
+          const f = await ghApi("GET", `contents/${p}`);
+          await ghApi("DELETE", `contents/${p}`, { message: `delete ${id}`, sha: f.sha });
+        } catch (e) { if (e.status !== 404) throw e; }
+        continue;
+      }
+      const rec = state.entries.get(id);
+      if (!rec || !rec.env) continue;
+      const content = bytesToB64(_te.encode(JSON.stringify(rec.env)));
+      let sha = null;
+      try { const f = await ghApi("GET", `contents/${p}`); sha = f.sha; } catch (e) { if (e.status !== 404) throw e; }
+      const body = { message: `update ${id}`, content };
+      if (sha) body.sha = sha;
+      try {
+        await ghApi("PUT", `contents/${p}`, body);
+      } catch (e) {
+        if (e.status === 409) { // 并发修改：重拉一次再合并一次
+          const f = await ghApi("GET", `contents/${p}`);
+          const env = decodeFile(f.content);
+          if (cmpVer(envVersion(env), meta.ver) > 0) {
+            const plain = await decryptEnv(state.dataKey, env, id);
+            await idbPut("entries", id, { env, ver: envVersion(env) });
+            state.entries.set(id, { env, plain });
+            state.manifest.entries[id] = { ver: envVersion(env), deleted: false };
+          } else {
+            body.sha = f.sha;
+            await ghApi("PUT", `contents/${p}`, body);
+          }
+        } else throw e;
+      }
+    }
+
+    /* ---- 最后写入清单（加密） ---- */
+    const mfEnv = await encryptEnv(state.dataKey, merged, "manifest-v1");
+    const mfBody = { message: "update manifest", content: bytesToB64(_te.encode(JSON.stringify(mfEnv))) };
+    if (manifestSha) mfBody.sha = manifestSha;
+    try {
+      await ghApi("PUT", mfPath, mfBody);
+    } catch (e) {
+      if (e.status === 409) {
+        const mf = await ghApi("GET", mfPath);
+        mfBody.sha = mf.sha;
+        await ghApi("PUT", mfPath, mfBody);
+      } else throw e;
+    }
+
+    state.manifest = merged;
+    await idbPut("meta", "manifest", state.manifest);
+    state.settings.lastSync = Date.now(); saveSettings();
+    setSyncStatus("ok", "已同步");
+    if (!silent) showToast("同步完成", "ok");
+  } catch (e) {
+    setSyncStatus("err", "同步失败");
+    throw e;
+  }
+}
+
+function setSyncStatus(kind, text) {
+  const el = document.getElementById("sync-status");
+  const tx = document.getElementById("sync-status-text");
+  if (!el) return;
+  el.className = "sync-status " + kind;
+  tx.textContent = text;
+}
+
+/* ================================================================
+   备份：加密导出 / 导入合并
+   ================================================================ */
+async function exportVault() {
+  const entries = [];
+  for (const [id, rec] of state.entries) {
+    if (rec.env) entries.push({ id, env: rec.env });
+  }
+  const blob = {
+    app: APP_ID, v: 1,
+    kdf: { algo: KDF_ALGO, iter: KDF_ITER },
+    salt: state.salt, check: state.check,
+    manifest: state.manifest,
+    entries,
+  };
+  if (recGet()) blob.rec = recGet();
+  const json = JSON.stringify(blob);
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const name = `secure-diary-backup-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.vault`;
+  const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  localStorage.setItem("sd-last-backup", String(Date.now()));
+  const ed = $("export-desc");
+  if (ed) ed.textContent = "导出一个加密文件，可存入网盘/U盘。导入时需输入主密码。" + backupDaysText(lastBackupTime());
+  maybeShowBackupReminder();
+  showToast("备份已导出（含全部加密条目）", "ok");
+}
+
+async function importVaultFile(file) {
+  const text = await file.text();
+  let blob;
+  try { blob = JSON.parse(text); } catch (e) { throw new Error("文件不是有效的备份"); }
+  if (blob.app !== APP_ID || !blob.salt || !blob.check) throw new Error("文件不是本应用的加密备份");
+  if (blob.v !== 1) throw new Error("备份版本不受支持");
+
+  const ans = await promptVaultKey("导入加密备份", "输入此备份创建时使用的主密码以解密。");
+  if (ans === null) return "cancelled";
+  const iter = blob.kdf.iter || KDF_ITER;
+  let dk;
+  if (ans.mode === "rec") {
+    const rec = blob.rec;
+    if (!rec) throw new Error("此备份不含恢复密钥，请改用主密码导入");
+    const hex = normRecKey(ans.value);
+    if (hex.length !== 64) throw new Error("恢复密钥格式不正确");
+    const kek = await deriveDataKey(await deriveMasterBits("sd-rec:" + hex, b64ToBytes(rec.salt), iter));
+    const bits = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(rec.iv) }, kek, b64ToBytes(rec.wrap));
+    dk = await deriveDataKey(bits);
+  } else {
+    dk = await deriveDataKey(await deriveMasterBits(ans.value, b64ToBytes(blob.salt), iter));
+  }
+  const ok = await verifyCheck(dk, blob.check);
+  if (!ok) throw new Error("密钥错误，无法解密此备份");
+
+  const merged = mergeManifest(state.manifest, blob.manifest || newManifest());
+  let n = 0;
+  for (const [id, meta] of Object.entries(merged.entries)) {
+    if (meta.deleted) continue;
+    const rec = state.entries.get(id);
+    const localVer = state.manifest.entries[id] ? state.manifest.entries[id].ver : null;
+    if (rec && localVer && cmpVer(meta.ver, localVer) <= 0) continue;
+    const be = (blob.entries || []).find(e => e.id === id);
+    if (!be || !be.env) continue;
+    const plain = await decryptEnv(dk, be.env, id);
+    const env = await encryptEnv(state.dataKey, plain, id);
+    env.id = id; env.ts = be.env.ts; env.dev = be.env.dev;
+    await idbPut("entries", id, { env, ver: envVersion(env) });
+    state.entries.set(id, { env, plain });
+    state.manifest.entries[id] = meta;
+    n++;
+  }
+  await idbPut("meta", "manifest", state.manifest);
+  showToast(`导入完成，合并 ${n} 篇日记`, "ok");
+  return "done";
+}
+
+/* ================================================================
+   界面：工具函数
+   ================================================================ */
+function $(id) { return document.getElementById(id); }
+function val(id) { return $(id).value; }
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+let toastTimer = null;
+function showToast(msg, type) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (type ? " " + type : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = "toast"; }, 2600);
+}
+function openModal(title, bodyHtml, actionsHtml) {
+  $("modal-title").textContent = title;
+  $("modal-body").innerHTML = bodyHtml;
+  $("modal-actions").innerHTML = actionsHtml || "";
+  $("modal-mask").classList.add("show");
+}
+function closeModal() { $("modal-mask").classList.remove("show"); }
+function promptPassword(title, desc) {
+  return new Promise((resolve) => {
+    openModal(title,
+      `<p style="margin-bottom:14px">${esc(desc)}</p>
+       <div class="pw-visual">
+         <input id="modal-pw" class="input" type="password" placeholder="主密码" autocomplete="off">
+         <button class="pw-eye" id="modal-pw-eye" type="button" aria-label="显示密码">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+         </button>
+       </div>`,
+      `<button class="btn btn-ghost" id="modal-cancel">取消</button>
+       <button class="btn btn-primary" id="modal-ok">确认</button>`
+    );
+    const ok = $("modal-ok"), cancel = $("modal-cancel"), input = $("modal-pw");
+    $("modal-pw-eye").onclick = () => { input.type = input.type === "password" ? "text" : "password"; };
+    const done = (v) => { closeModal(); resolve(v); };
+    ok.onclick = () => done(input.value);
+    cancel.onclick = () => done(null);
+    input.focus();
+    input.onkeydown = (e) => { if (e.key === "Enter") done(input.value); };
+  });
+}
+function promptVaultKey(title, desc) {
+  return new Promise((resolve) => {
+    openModal(title,
+      `<p style="margin-bottom:14px">${esc(desc)}</p>
+       <div id="vk-pw-box">
+         <div class="pw-visual">
+           <input id="modal-pw" class="input" type="password" placeholder="主密码" autocomplete="off">
+           <button class="pw-eye" id="modal-pw-eye" type="button" aria-label="显示密码">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+           </button>
+         </div>
+       </div>
+       <div id="vk-rec-box" style="display:none">
+         <input id="modal-rec" class="input" type="text" placeholder="恢复密钥（可粘贴）" autocomplete="off" spellcheck="false">
+       </div>
+       <button type="button" class="link-btn" id="vk-toggle" style="margin-top:4px">忘记密码？用恢复密钥解密</button>`,
+      `<button class="btn btn-ghost" id="modal-cancel">取消</button>
+       <button class="btn btn-primary" id="modal-ok">确认</button>`
+    );
+    const ok = $("modal-ok"), cancel = $("modal-cancel"), input = $("modal-pw");
+    $("modal-pw-eye").onclick = () => { input.type = input.type === "password" ? "text" : "password"; };
+    let mode = "pw";
+    $("vk-toggle").onclick = () => {
+      mode = mode === "pw" ? "rec" : "pw";
+      const recMode = mode === "rec";
+      $("vk-pw-box").style.display = recMode ? "none" : "";
+      $("vk-rec-box").style.display = recMode ? "" : "none";
+      $("vk-toggle").textContent = recMode ? "改用主密码解密" : "忘记密码？用恢复密钥解密";
+      (recMode ? $("modal-rec") : input).focus();
+    };
+    const done = (v) => { closeModal(); resolve(v); };
+    ok.onclick = () => done(mode === "rec" ? { mode: "rec", value: $("modal-rec").value } : { mode: "pw", value: input.value });
+    cancel.onclick = () => done(null);
+    input.focus();
+    const onEnter = (e) => { if (e.key === "Enter") ok.click(); };
+    input.onkeydown = onEnter;
+    $("modal-rec").onkeydown = onEnter;
+  });
+}
+
+/* ================================================================
+   界面：路由与渲染
+   ================================================================ */
+function parseHash() {
+  const h = location.hash.replace(/^#\/?/, "");
+  const parts = h.split("/").filter(Boolean);
+  return { view: parts[0] === "edit" ? "editor" : (parts[0] || ""), id: parts[1] || null };
+}
+function go(h) { location.hash = "#/" + h; }
+
+let prevView = null;
+const VIEW_DEPTH = { welcome: 0, lock: 0, list: 1, editor: 2, settings: 2, stats: 2 };
+const REDUCED_MOTION = typeof window !== "undefined" && window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function transitionTo(view, old) {
+  const neu = $("view-" + view);
+  const ov = old && $("view-" + old);
+  if (!neu) return;
+  // 清理可能残留的离开态
+  document.querySelectorAll(".view.leaving").forEach(el => {
+    el.classList.remove("active", "leaving");
+    el.style.animation = "";
+  });
+  if (!ov || ov === neu || REDUCED_MOTION) {
+    if (ov && ov !== neu) ov.classList.remove("active");
+    neu.classList.add("active");
+    return;
+  }
+  const dir = (VIEW_DEPTH[view] ?? 0) >= (VIEW_DEPTH[old] ?? 0) ? "forward" : "back";
+  // 旧视图先轻淡出（不重叠、不堆叠，避免返回时抖动），随后新视图滑入
+  ov.classList.add("leaving");
+  ov.style.animation = "viewFadeOut .13s ease both";
+  setTimeout(() => {
+    ov.classList.remove("active", "leaving");
+    ov.style.animation = "";
+    neu.classList.add("active");
+    neu.style.animation = (dir === "back" ? "viewEnterBack" : "viewEnterForward") + " .3s cubic-bezier(.21,.8,.32,1) both";
+    setTimeout(() => { neu.style.animation = ""; }, 330);
+  }, 140);
+}
+
+function route() {
+  let { view, id } = parseHash();
+  if (!view) {
+    view = state.salt ? "lock" : "welcome";
+    go(view);
+    return;
+  }
+  if ((view === "list" || view === "editor" || view === "settings") && !state.unlocked) {
+    go("lock");
+    return;
+  }
+  const old = prevView;
+  prevView = view;
+  window.scrollTo(0, 0);
+  transitionTo(view, old);
+  $("btn-new-entry").style.display = view === "list" ? "flex" : "none";
+  if (view === "list") { renderList(old !== view); maybeShowBackupReminder(); updateDateFilter(); }
+  if (view === "editor") openEditor(id);
+  if (view === "settings") renderSettings();
+  if (view === "stats") renderStats();
+  if (view === "lock") { refreshLockMeta(); showLockMode(quickSetup() ? "pattern" : "password"); }
+  if (view === "welcome") resetWelcome();
+}
+
+function resetWelcome() {
+  const a = $("pw-create"), b = $("pw-confirm");
+  if (a) a.value = "";
+  if (b) b.value = "";
+  updateStrength();
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function fmtDateCN(s) {
+  const [y, m, d] = s.split("-").map(Number);
+  if (!y || !m || !d) return s;
+  return `${y}年${m}月${d}日`;
+}
+function fmtDateCNW(s) {
+  const [y, m, d] = s.split("-").map(Number);
+  if (!y || !m || !d) return s;
+  const w = "日一二三四五六"[new Date(y, m-1, d).getDay()];
+  return `${y}年${m}月${d}日 周${w}`;
+}
+function monthKey(s) { return s.slice(0, 7); }
+function fmtMonth(k) { const [y, m] = k.split("-").map(Number); return `${y}年${m}月`; }
+function previewOf(plain) {
+  const c = (plain.content || "").replace(/\s+/g, " ").trim();
+  if (c) return c;
+  return (plain.tags || []).length ? "· " + plain.tags.join(" · ") : "（无内容）";
+}
+
+const MOODS = [
+  { id: "calm",    label: "平静", color: "#6B8E6F" },
+  { id: "happy",   label: "开心", color: "#D9A441" },
+  { id: "low",     label: "低落", color: "#7C8CA6" },
+  { id: "anxious", label: "焦虑", color: "#B97E6B" },
+  { id: "tired",   label: "疲惫", color: "#8A7E99" },
+];
+function moodOf(id) { return MOODS.find(m => m.id === id) || null; }
+
+function buildMoodChips() {
+  const row = $("mood-row");
+  row.innerHTML = "";
+  for (const m of MOODS) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "mood-chip" + (state.editingMood === m.id ? " active" : "");
+    b.dataset.mood = m.id;
+    b.innerHTML = `<i style="background:${m.color}"></i>${m.label}`;
+    b.onclick = () => {
+      state.editingMood = state.editingMood === m.id ? "" : m.id;
+      buildMoodChips(); scheduleSave();
+    };
+    row.appendChild(b);
+  }
+}
+
+let searchTerm = "";
+function renderList(animate) {
+  const c = $("list-container");
+  $("header-date").textContent = fmtDateCN(todayStr());
+  const term = searchTerm.trim().toLowerCase();
+  const items = [];
+  for (const [id, rec] of state.entries) {
+    if (!rec.plain || !hasDiaryContent(rec.plain)) continue;
+    const m = state.manifest.entries[id];
+    if (m && m.deleted) continue;
+    if (term) {
+      const hay = (rec.plain.title + " " + rec.plain.content + " " + (rec.plain.tags || []).join(" ")).toLowerCase();
+      if (!hay.includes(term)) continue;
+    }
+    if (listDateFilter && rec.plain.date !== listDateFilter) continue;
+    items.push({ id, plain: rec.plain });
+  }
+  items.sort((a, b) => {
+    const da = a.plain.date || "", db = b.plain.date || "";
+    if (da !== db) return da < db ? 1 : -1;
+    return (b.plain.createdAt || 0) - (a.plain.createdAt || 0);
+  });
+
+  if (!items.length) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M14 4v5h5"/><path d="M8 12h8M8 16h5"/></svg>
+        <b>${listDateFilter ? "这一天没有日记" : (term ? "没有匹配的日记" : "写下第一篇日记")}</b>
+        <p>${listDateFilter ? "换个日期看看，或清除日期筛选" : (term ? "换个关键词试试" : "点击右下角的按钮开始记录。所有内容都会在加密后保存。")}</p>
+      </div>`;
+    c.classList.toggle("list-anim", !!animate);
+    return;
+  }
+
+  const groups = new Map();
+  for (const it of items) {
+    const k = monthKey(it.plain.date || todayStr());
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(it);
+  }
+  let html = "";
+  let idx = 0;
+  c.classList.toggle("list-anim", !!animate);
+  for (const [k, list] of groups) {
+    html += `<div class="month-block"><span class="month-label"><i></i>${esc(fmtMonth(k))}</span></div>`;
+    for (const it of list) {
+      const p = it.plain;
+      const mo = moodOf(p.mood);
+      const anim = animate ? ` style="animation-delay:${Math.min(idx * 26, 420)}ms"` : "";
+      idx++;
+      html += `
+        <button class="entry-card" data-id="${esc(it.id)}"${anim}>
+          <div class="entry-top">
+            <span class="entry-date">${esc(fmtDateCNW(p.date || ""))}</span>
+            ${mo ? `<span class="mood-dot" style="background:${mo.color}" title="${mo.label}"></span><span class="mood-tag">${mo.label}</span>` : ""}
+          </div>
+          ${p.title ? `<div class="entry-title">${esc(p.title)}</div>` : ""}
+          <div class="entry-preview">${esc(previewOf(p))}</div>
+          ${p.tags && p.tags.length ? `<div class="entry-tags">${p.tags.slice(0, 5).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+        </button>`;
+    }
+  }
+  c.innerHTML = html;
+  c.querySelectorAll(".entry-card").forEach(el => {
+    el.onclick = () => go("edit/" + el.dataset.id);
+  });
+  if (animate) setTimeout(() => c.classList.remove("list-anim"), 1000);
+}
+
+/* ================================================================
+   界面：编辑器
+   ================================================================ */
+let saveTimer = null;
+let saveFail = false;
+function openEditor(id) {
+  const isNew = !id || !state.entries.has(id);
+  state.editingId = isNew ? uuid() : id;
+  state.editingMood = "";
+  state.editingCreatedAt = Date.now();
+  $("ed-mode").textContent = isNew ? "写日记" : "编辑日记";
+  $("ed-date").value = todayStr();
+  $("ed-title").value = "";
+  $("ed-content").value = "";
+  state.editingTags = [];
+  $("ed-tags").value = "";
+  $("ed-save-state").textContent = "";
+  $("ed-words").textContent = "";
+  $("btn-delete").style.visibility = isNew ? "hidden" : "visible";
+  if (!isNew) {
+    const rec = state.entries.get(id);
+    const p = rec.plain || {};
+    state.editingMood = p.mood || "";
+    state.editingCreatedAt = p.createdAt || Date.now();
+    $("ed-date").value = p.date || todayStr();
+    $("ed-title").value = p.title || "";
+    $("ed-content").value = p.content || "";
+    state.editingTags = (p.tags || []).slice();
+    $("ed-tags").value = "";
+  }
+  buildMoodChips();
+  renderTags();
+  updateWords();
+  const form = $("editor-form");
+  form.classList.remove("ed-stagger");
+  void form.offsetWidth;
+  form.classList.add("ed-stagger");
+  $("ed-content").focus();
+}
+
+function currentPlain() {
+  return {
+    title: val("ed-title").trim(),
+    date: val("ed-date") || todayStr(),
+    content: val("ed-content"),
+    mood: state.editingMood,
+    tags: state.editingTags || [],
+    createdAt: state.editingCreatedAt,
+    updatedAt: Date.now(),
+  };
+}
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  $("ed-save-state").innerHTML = `<i class="dot"></i> 正在保存…`;
+  $("ed-save-state").className = "save-state";
+  saveTimer = setTimeout(async () => {
+    if (!state.unlocked || !state.editingId) return;
+    try {
+      const plain = currentPlain();
+      const isNew = !state.entries.has(state.editingId);
+      if (isNew && !hasDiaryContent(plain)) {
+        $("ed-save-state").textContent = "";
+        $("ed-save-state").className = "save-state";
+        return;  // 一条字都没有的新日记：不入库
+      }
+      const env = await saveEntry(state.editingId, plain);
+      $("ed-save-state").className = "save-state ok";
+      $("ed-save-state").innerHTML = `<svg class="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 已保存 ${new Date().toTimeString().slice(0,5)}`;
+      saveFail = false;
+    } catch (e) {
+      $("ed-save-state").className = "save-state err";
+      $("ed-save-state").textContent = "保存失败，请重试";
+      saveFail = true;
+    }
+  }, 600);
+}
+function updateWords() {
+  const n = val("ed-content").replace(/\s/g, "").length;
+  $("ed-words").textContent = n ? `${n} 字` : "";
+}
+
+/* ================================================================
+   界面：设置
+   ================================================================ */
+function buildAbout() {
+  $("about-block").innerHTML = `
+    <h4>数据如何被保护</h4>
+    <p>每条日记用 <code>AES-256-GCM</code> 加密（带完整性校验），密钥由你的主密码经 <code>PBKDF2-SHA256</code> 60 万次迭代派生，仅在你解锁期间存在于内存。</p>
+    <h4>同步的零知识性</h4>
+    <p>同步到 GitHub 私有仓库的只有密文。仓库服务器、GitHub 官方、任何拿到仓库数据的人，都无法解密内容。清单与条目同样加密，仓库中不可见的还有你的标题、正文与标签。</p>
+    <h4>不设防的范围</h4>
+    <p>若你的设备本身已被恶意软件入侵、或有人在你解锁后使用设备，加密无法保护内容。请保管好主密码——它是唯一的钥匙，遗忘即永久丢失。</p>`;
+}
+/* ============ 自动备份提醒 ============ */
+const BACKUP_INTERVAL_MS = 7 * 24 * 3600 * 1000;   // 每 7 天提醒一次
+const BACKUP_REMIND_GAP_MS = 24 * 3600 * 1000;     // 点"稍后"后 1 天内不再打扰
+function lastBackupTime() { return parseInt(localStorage.getItem("sd-last-backup") || "0", 10) || 0; }
+function backupDaysText(ts) {
+  if (!ts) return "从未备份";
+  const d = Math.floor((Date.now() - ts) / 86400000);
+  return "上次备份：" + (d <= 0 ? "今天" : d + " 天前");
+}
+function maybeShowBackupReminder() {
+  const banner = $("backup-banner");
+  if (!banner) return;
+  const last = lastBackupTime();
+  const dismissed = parseInt(localStorage.getItem("sd-backup-remind-dismissed") || "0", 10) || 0;
+  const due = !last || (Date.now() - last >= BACKUP_INTERVAL_MS);
+  const nag = !dismissed || (Date.now() - dismissed >= BACKUP_REMIND_GAP_MS);
+  if (!due || !nag || !state.unlocked) { banner.style.display = "none"; return; }
+  $("backup-banner-sub").textContent = backupDaysText(last) + " · 导出加密文件存入网盘或U盘，防止浏览器清理数据";
+  banner.style.display = "block";
+}
+
+/* ============ 自动同步 ============ */
+const AUTO_SYNC_INTERVAL_MS = 30 * 60 * 1000;   // 每 30 分钟自动同步一次
+let autoSyncing = false;
+function syncConfigured() {
+  const g = state.settings.gh || {};
+  return !!(g.owner && g.repo && g.token);
+}
+async function maybeAutoSync() {
+  if (autoSyncing || !state.unlocked) return;
+  if (!state.settings.autoSync || !syncConfigured()) return;
+  const last = state.settings.lastSync || 0;
+  if (Date.now() - last < AUTO_SYNC_INTERVAL_MS) return;
+  autoSyncing = true;
+  try {
+    await syncNow(true);
+    if ($("view-list").classList.contains("active")) renderList(false);
+  } catch (e) {
+    // 静默失败：设置页同步状态点已标记"同步失败"，不打扰用户
+  } finally {
+    autoSyncing = false;
+  }
+}
+
+/* ============ 月度回顾 ============ */
+let statsMonth = todayStr().slice(0, 7);
+let listDateFilter = null;
+function fmtMonthCN(ym) {
+  const [y, m] = ym.split("-").map(Number);
+  return `${y} 年 ${m} 月`;
+}
+function dayGap(a, b) { return Math.round((Date.parse(a) - Date.parse(b)) / 86400000); }
+function renderStats() {
+  const ym = statsMonth;
+  const items = [];
+  for (const [id, rec] of state.entries) {
+    if (!rec.plain || !hasDiaryContent(rec.plain)) continue;
+    const meta = state.manifest.entries[id];
+    if (meta && meta.deleted) continue;
+    const d = rec.plain.date || todayStr();
+    if (d.slice(0, 7) !== ym) continue;
+    items.push(rec.plain);
+  }
+  const daysMap = new Map();
+  let words = 0;
+  for (const p of items) {
+    words += (p.content || "").length;
+    const g = daysMap.get(p.date) || { count: 0, mood: "" };
+    g.count++;
+    if (p.mood) g.mood = p.mood;
+    daysMap.set(p.date, g);
+  }
+  $("st-entries").textContent = items.length;
+  $("st-days").textContent = daysMap.size;
+  $("st-words").textContent = words;
+  const sorted = [...daysMap.keys()].sort();
+  let best = 0, cur = 0, prev = null;
+  for (const d of sorted) {
+    cur = (prev && dayGap(d, prev) === 1) ? cur + 1 : 1;
+    if (cur > best) best = cur;
+    prev = d;
+  }
+  $("st-streak").textContent = best;
+
+  $("stats-month").textContent = fmtMonthCN(ym);
+  const [yy, mm] = ym.split("-").map(Number);
+  const startDow = (new Date(yy, mm - 1, 1).getDay() + 6) % 7;  // 周一为每周起点
+  const daysInMonth = new Date(yy, mm, 0).getDate();
+  const today = todayStr();
+  let cal = `<div class="cal-wd-row">${"一二三四五六日".split("").map(w => `<span class="cal-wd">${w}</span>`).join("")}</div>`;
+  for (let i = 0; i < startDow; i++) cal += `<span class="cal-day blank"></span>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const ds = `${ym}-${String(day).padStart(2, "0")}`;
+    const g = daysMap.get(ds);
+    const cls = "cal-day" + (ds === today ? " today" : "") + (g ? " has" : "");
+    if (g) {
+      const mc = g.mood ? moodOf(g.mood).color : "var(--green)";
+      cal += `<button type="button" class="${cls}" data-day="${ds}" aria-label="${fmtDateCN(ds)} ${g.count} 篇">${day}<i class="mood-dot" style="background:${mc}"></i>${g.count > 1 ? `<span class="cal-count">×${g.count}</span>` : ""}</button>`;
+    } else {
+      cal += `<span class="${cls}">${day}</span>`;
+    }
+  }
+  const calEl = $("stats-cal");
+  calEl.innerHTML = cal;
+  calEl.querySelectorAll(".cal-day.has").forEach(b => b.onclick = () => {
+    listDateFilter = b.dataset.day;
+    go("list");
+  });
+
+  const moods = new Map();
+  for (const p of items) if (p.mood) moods.set(p.mood, (moods.get(p.mood) || 0) + 1);
+  $("stats-moods").innerHTML = MOODS.map(m =>
+    `<span class="stats-mood-chip${moods.has(m.id) ? "" : " zero"}"><i style="background:${m.color}"></i>${m.label}<b>${moods.get(m.id) || 0}</b></span>`
+  ).join("");
+}
+function shiftStatsMonth(delta) {
+  const [y, m] = statsMonth.split("-").map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  statsMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  renderStats();
+}
+function updateDateFilter() {
+  const el = $("date-filter");
+  if (!el) return;
+  if (!listDateFilter) { el.style.display = "none"; return; }
+  $("date-filter-text").textContent = "正在查看 " + fmtDateCN(listDateFilter) + " 的日记";
+  el.style.display = "block";
+}
+
+const LOCK_OPTIONS = [
+  { v: 1, l: "1 分" }, { v: 5, l: "5 分" }, { v: 15, l: "15 分" },
+  { v: 30, l: "30 分" }, { v: 0, l: "从不" },
+];
+function renderAutoLock() {
+  const row = $("auto-lock-row");
+  if (!row) return;
+  row.innerHTML = LOCK_OPTIONS.map(o =>
+    `<button type="button" class="lock-chip${(state.settings.autoLockMin ?? 5) === o.v ? " active" : ""}" data-v="${o.v}">${o.l}</button>`
+  ).join("");
+  row.querySelectorAll(".lock-chip").forEach(b => {
+    b.onclick = () => {
+      state.settings.autoLockMin = parseInt(b.dataset.v, 10);
+      saveSettings(); touch();
+      renderAutoLock();
+    };
+  });
+}
+
+const TAG_PRESETS = ["生活", "工作", "学习", "旅行", "美食", "运动", "家人", "朋友", "心情", "健康", "灵感", "碎碎念"];
+function renderTags() {
+  const tags = state.editingTags || [];
+  const list = $("ed-tag-list"), pres = $("tag-presets");
+  if (list) {
+    list.innerHTML = tags.map(t =>
+      `<span class="tag-chip">${esc(t)}<button type="button" data-tag="${esc(t)}" aria-label="移除标签 ${esc(t)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>`
+    ).join("");
+    list.querySelectorAll(".tag-chip button").forEach(b => b.onclick = () => { removeTag(b.dataset.tag); });
+  }
+  if (pres) {
+    pres.innerHTML = TAG_PRESETS.map(t =>
+      `<button type="button" class="preset-tag${tags.includes(t) ? " on" : ""}" data-preset="${esc(t)}">${esc(t)}</button>`
+    ).join("");
+    pres.querySelectorAll(".preset-tag").forEach(b => b.onclick = () => { toggleTag(b.dataset.preset); });
+  }
+}
+function addTag(t) {
+  t = (t || "").trim();
+  if (!t) return;
+  if (!state.editingTags.includes(t)) state.editingTags = [...state.editingTags, t];
+  renderTags(); scheduleSave();
+}
+function removeTag(t) {
+  state.editingTags = state.editingTags.filter(x => x !== t);
+  renderTags(); scheduleSave();
+}
+function toggleTag(t) {
+  state.editingTags = state.editingTags.includes(t)
+    ? state.editingTags.filter(x => x !== t)
+    : [...state.editingTags, t];
+  renderTags(); scheduleSave();
+}
+
+function renderSettings() {
+  const g = state.settings.gh || {};
+  $("gh-owner").value = g.owner || "";
+  $("gh-repo").value = g.repo || "";
+  $("gh-token").value = g.token || "";
+  renderAutoLock();
+  const ed = $("export-desc");
+  if (ed) ed.textContent = "导出一个加密文件，可存入网盘/U盘。导入时需输入主密码。" + backupDaysText(lastBackupTime());
+  $("btn-sync-now").disabled = !(g.owner && g.repo && g.token);
+  if (state.settings.lastSync) {
+    $("last-sync").textContent = "上次同步：" + new Date(state.settings.lastSync).toLocaleString();
+  } else {
+    $("last-sync").textContent = "尚未同步过";
+  }
+  const sw = $("switch-auto-sync");
+  if (sw) sw.setAttribute("aria-checked", String(!!state.settings.autoSync));
+  const q = quickSetup();
+  const qd = $("quick-desc"), qb = $("btn-quick");
+  if (qd) qd.textContent = q ? "已开启：本机绘制图案解锁（不替代主密码）" : "绘制图案快速解锁本机（防随手翻看，主密码仍是最终保障）";
+  if (qb) qb.textContent = q ? "更改 / 关闭" : "设置";
+  const rec = recGet();
+  const rdd = $("rec-desc"), rb = $("btn-rec");
+  if (rdd) rdd.textContent = rec ? "已设置：忘记主密码时可用它解锁本机（修改主密码后需重新生成）" : "忘记主密码时的本机解锁凭证，只在生成时显示一次";
+  if (rb) rb.textContent = rec ? "重新生成" : "生成";
+  const st = $("sync-status");
+  if (!(g.owner && g.repo && g.token)) {
+    setSyncStatus("idle", "未配置");
+  } else if (st.classList.contains("ok") || st.classList.contains("err") || st.classList.contains("busy")) {
+    // 保持现有状态
+  } else {
+    setSyncStatus("idle", "已配置");
+  }
+}
+function refreshLockMeta() {
+  $("lock-meta-count").textContent = state.salt
+    ? "本机共 " + Object.values(state.manifest.entries).filter(m => !m.deleted).length + " 篇日记（加密保存）"
+    : "";
+}
+async function saveSyncConfig() {
+  state.settings.gh = {
+    owner: val("gh-owner").trim(),
+    repo: val("gh-repo").trim(),
+    token: val("gh-token").trim(),
+  };
+  saveSettings();
+  $("btn-sync-now").disabled = !(state.settings.gh.owner && state.settings.gh.repo && state.settings.gh.token);
+  if (state.settings.gh.owner && state.settings.gh.repo && state.settings.gh.token) {
+    try {
+      await testGitHub();
+      showToast("GitHub 连接成功，开始同步…", "ok");
+      await syncNow(true);
+      renderSettings();
+    } catch (e) {
+      showToast("连接失败：" + e.message, "err");
+      setSyncStatus("err", "连接失败");
+    }
+  } else {
+    showToast("请填写完整的 GitHub 信息", "err");
+  }
+}
+
+/* ================================================================
+   密码强度 / 解锁限流
+   ================================================================ */
+function pwStrength(pw) {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (pw.length >= 12) s++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+  if (/\d/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
+  return Math.min(4, s);
+}
+const STR_LABEL = ["极弱", "较弱", "一般", "较强", "很强"];
+function updateStrength() {
+  const pw = val("pw-create");
+  const s = pwStrength(pw);
+  const colors = ["#B23A2E", "#C9802B", "#B97E1F", "#6B8E6F", "#2E5E4A"];
+  const bars = $("strength").querySelectorAll("i");
+  bars.forEach((b, i) => { b.style.background = i < s ? colors[s - 1] : ""; });
+  $("strength-label").textContent = pw ? STR_LABEL[s] : "建议混合大小写、数字与符号";
+}
+
+/* ================================================================
+   图案快捷解锁
+   ================================================================ */
+const PAT_DOTS = [[75,75],[150,75],[225,75],[75,150],[150,150],[225,150],[75,225],[150,225],[225,225]];
+function quickSetup() { try { return JSON.parse(lsGet("sd-quick") || "null"); } catch (e) { return null; } }
+function patKeyStr(path) { return "sd-pat:" + path.join("-"); }
+async function makeQuickWrap(dataKey, path) {
+  const saltB = crypto.getRandomValues(new Uint8Array(16));
+  const bits = await deriveMasterBits(patKeyStr(path), saltB, KDF_ITER);
+  const kek = await deriveDataKey(bits);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, kek, state.masterBits);
+  lsSet("sd-quick", JSON.stringify({ v: 1, salt: bytesToB64(saltB), iv: bytesToB64(iv), wrap: bytesToB64(new Uint8Array(ct)) }));
+}
+async function quickUnlockPath(path) {
+  const q = quickSetup();
+  if (!q) throw new Error("未设置快捷解锁");
+  const kek = await deriveDataKey(await deriveMasterBits(patKeyStr(path), b64ToBytes(q.salt), KDF_ITER));
+  const bits = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(q.iv) }, kek, b64ToBytes(q.wrap));
+  state.masterBits = bits;
+  state.dataKey = await deriveDataKey(bits);
+}
+function renderPatternGridInto(svg, path) {
+  let s = path.length > 1
+    ? `<polyline points="${path.map(i => PAT_DOTS[i].join(",")).join(" ")}" class="pat-line"/>`
+    : "";
+  s += PAT_DOTS.map(([x, y], i) =>
+    `<circle cx="${x}" cy="${y}" r="22" class="pat-dot${path.includes(i) ? " on" : ""}"/>`).join("");
+  if (path.length) {
+    const [x, y] = PAT_DOTS[path[path.length - 1]];
+    s += `<circle cx="${x}" cy="${y}" r="30" class="pat-last"/>`;
+  }
+  svg.innerHTML = s;
+}
+function bindPatternGrid(svgId, onSubmit) {
+  const svg = $(svgId);
+  if (!svg) return;
+  let path = [], drawing = false;
+  const upd = () => renderPatternGridInto(svg, path);
+  const hitAt = (ev) => {
+    const r = svg.getBoundingClientRect();
+    const x = (ev.clientX - r.left) / r.width * 300;
+    const y = (ev.clientY - r.top) / r.height * 300;
+    let best = -1, bd = 44;
+    PAT_DOTS.forEach(([dx, dy], i) => { const d = Math.hypot(x - dx, y - dy); if (d < bd) { bd = d; best = i; } });
+    return best;
+  };
+  svg.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    drawing = true;
+    path = [];
+    const i = hitAt(e);
+    if (i >= 0) path.push(i);
+    upd();
+  });
+  svg.addEventListener("pointermove", (e) => {
+    if (!drawing) return;
+    const i = hitAt(e);
+    if (i < 0 || path.includes(i)) return;
+    if (path.length) {
+      const [lx, ly] = PAT_DOTS[path[path.length - 1]];
+      const [nx, ny] = PAT_DOTS[i];
+      const mid = PAT_DOTS.findIndex(([mx, my]) => Math.abs(mx - (lx + nx) / 2) < 1 && Math.abs(my - (ly + ny) / 2) < 1);
+      if (mid >= 0 && !path.includes(mid)) path.push(mid);
+    }
+    path.push(i);
+    upd();
+  });
+  const finish = (submit) => {
+    if (!drawing) return;
+    drawing = false;
+    const p = path.slice();
+    setTimeout(() => { path = []; upd(); }, 260);
+    if (submit && p.length) onSubmit(p);
+  };
+  svg.addEventListener("pointerup", () => finish(true));
+  svg.addEventListener("pointercancel", () => finish(false));
+  upd();
+}
+function setPatternHint(text, error) {
+  const h = $("pattern-hint");
+  if (!h) return;
+  h.textContent = text;
+  h.classList.toggle("err", !!error);
+}
+async function submitQuickUnlock(path) {
+  const errEl = $("lock-error");
+  const waitEl = $("attempt-wait");
+  const f = getFails();
+  if (f.until > Date.now()) {
+    waitEl.style.display = "block";
+    waitEl.textContent = `尝试过多，请 ${Math.ceil((f.until - Date.now()) / 1000)} 秒后再试`;
+    return;
+  }
+  waitEl.style.display = "none";
+  errEl.classList.remove("show");
+  if (path.length < 4) { setPatternHint("至少连接 4 个点", true); return; }
+  try {
+    await quickUnlockPath(path);
+    f.n = 0; setFails(f);
+    state.unlocked = true;
+    await decryptAllEntries();
+    await cleanupGhostEntries();
+    $("pw-unlock").value = "";
+    touch();
+    go("list");
+  } catch (e) {
+    f.n++;
+    if (f.n >= 5) {
+      f.until = Date.now() + Math.min(30000 * Math.pow(2, f.n - 5), 3600000);
+      waitEl.style.display = "block";
+      waitEl.textContent = `尝试过多，请 ${Math.ceil((f.until - Date.now()) / 1000)} 秒后再试`;
+    }
+    setFails(f);
+    errEl.textContent = "图案错误";
+    errEl.classList.add("show");
+    setPatternHint("图案错误，请重试", true);
+  }
+}
+function showLockMode(mode) {
+  const hasQ = !!quickSetup();
+  $("lock-pw-box").style.display = (mode === "password" || !hasQ) ? "" : "none";
+  $("lock-pattern-box").style.display = (hasQ && mode === "pattern") ? "" : "none";
+  $("btn-use-password").style.display = (hasQ && mode === "pattern") ? "" : "none";
+  $("btn-use-pattern").style.display = (hasQ && mode === "password") ? "" : "none";
+  const sub = $("lock-sub");
+  if (sub) sub.textContent = hasQ
+    ? (mode === "pattern" ? "绘制图案解锁，密钥只在解锁期间驻留内存" : "输入主密码解锁（快捷解锁已开启）")
+    : "输入主密码解锁，密钥只在解锁期间驻留内存";
+  const recBtn = $("btn-use-recovery");
+  if (recBtn) recBtn.style.display = recGet() ? "" : "none";
+}
+let patSetupStage = 0, patSetupFirst = null;
+function openPatternSetup() {
+  patSetupStage = 1; patSetupFirst = null;
+  openModal("设置图案快捷解锁",
+    `<p class="pattern-hint" id="pat-setup-hint">绘制图案：至少连接 4 个点</p>
+     <div class="pattern-wrap"><svg id="pattern-svg-setup" viewBox="0 0 300 300" class="pattern-grid" aria-label="绘制图案"></svg></div>`,
+    `<button class="btn btn-ghost" id="pat-cancel">取消</button>`);
+  $("pat-cancel").onclick = closeModal;
+  bindPatternGrid("pattern-svg-setup", onSetupSubmit);
+}
+function onSetupSubmit(path) {
+  const hint = $("pat-setup-hint");
+  if (path.length < 4) { hint.textContent = "至少连接 4 个点，再画一次"; hint.classList.add("err"); return; }
+  if (patSetupStage === 1) {
+    patSetupFirst = path.join("-");
+    patSetupStage = 2;
+    hint.classList.remove("err");
+    hint.textContent = "再次绘制以确认";
+    return;
+  }
+  if (path.join("-") !== patSetupFirst) {
+    patSetupStage = 1; patSetupFirst = null;
+    hint.textContent = "两次不一致，请重新绘制";
+    hint.classList.add("err");
+    return;
+  }
+  (async () => {
+    try {
+      await makeQuickWrap(state.dataKey, path);
+      closeModal();
+      showToast("图案快捷解锁已开启", "ok");
+      renderSettings();
+    } catch (e) { showToast("设置失败：" + e.message, "err"); }
+  })();
+}
+
+/* ================================================================
+   恢复密钥（本机密码找回凭证）
+   ================================================================ */
+function recGet() { try { const r = JSON.parse(lsGet("sd-rec") || "null"); return r && r.v === 1 ? r : null; } catch (e) { return null; } }
+function genRecoveryHex() { return Array.from(crypto.getRandomValues(new Uint8Array(32)), x => x.toString(16).padStart(2, "0")).join(""); }
+function fmtRecKey(hex) { return hex.replace(/(.{8})/g, "$1-").replace(/-$/, ""); }
+function normRecKey(s) { return (s || "").toLowerCase().replace(/[^0-9a-f]/g, ""); }
+async function saveRecoveryRecord(hex) {
+  const saltB = crypto.getRandomValues(new Uint8Array(16));
+  const kek = await deriveDataKey(await deriveMasterBits("sd-rec:" + hex, saltB, KDF_ITER));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, kek, state.masterBits);
+  lsSet("sd-rec", JSON.stringify({ v: 1, salt: bytesToB64(saltB), iv: bytesToB64(iv), wrap: bytesToB64(new Uint8Array(ct)) }));
+}
+async function unlockWithRecoveryKey(hex) {
+  const rec = recGet();
+  if (!rec) throw new Error("本机未设置恢复密钥");
+  const kek = await deriveDataKey(await deriveMasterBits("sd-rec:" + hex, b64ToBytes(rec.salt), KDF_ITER));
+  const bits = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(rec.iv) }, kek, b64ToBytes(rec.wrap));
+  const dk = await deriveDataKey(bits);
+  if (!(await verifyCheck(dk, state.check))) throw new Error("恢复密钥错误");
+  state.masterBits = bits; state.dataKey = dk;
+}
+function showRecoveryKeyModal(hex) {
+  openModal("保存你的恢复密钥",
+    `<p>这是<strong>唯一</strong>能在忘记主密码时解锁本机日记本的凭证。请立即抄写到纸上，或存入密码管理器。<strong>只显示这一次</strong>，本应用不存储明文、不同步、不进备份。</p>
+     <div class="rec-key" id="rec-key-box">${fmtRecKey(hex)}</div>
+     <button class="btn" id="rec-copy" style="width:100%">复制恢复密钥</button>
+     <p class="hint" style="margin-top:10px">提示：主密码仍不可找回；清除浏览器数据后恢复密钥随之失效。请同时定期导出加密备份。</p>`,
+    `<button class="btn btn-primary" id="rec-done">我已妥善保存</button>`);
+  $("rec-copy").onclick = () => {
+    (navigator.clipboard ? navigator.clipboard.writeText(fmtRecKey(hex)) : Promise.reject(new Error("no clipboard")))
+      .then(() => showToast("已复制", "ok"))
+      .catch(() => showToast("复制失败，请手动抄写", "err"));
+  };
+  $("rec-done").onclick = closeModal;
+}
+async function createRecoveryKey() {
+  const hex = genRecoveryHex();
+  await saveRecoveryRecord(hex);
+  return hex;
+}
+
+/* 解锁限流：5 次失败后指数退避 */
+function getFails() {
+  try { return JSON.parse(lsGet("sd-fails") || '{"n":0,"until":0}'); } catch (e) { return { n: 0, until: 0 }; }
+}
+function setFails(f) { lsSet("sd-fails", JSON.stringify(f)); }
+function waitSeconds(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ================================================================
+   自动锁定
+   ================================================================ */
+let lastActivity = Date.now();
+function touch() { lastActivity = Date.now(); }
+function checkAutoLock() {
+  if (!state.unlocked) return;
+  const min = state.settings.autoLockMin || 0;
+  if (min <= 0) return;
+  if (Date.now() - lastActivity > min * 60000) {
+    lockVault();
+    go("lock");
+    showToast("已自动锁定");
+  }
+}
+
+/* ================================================================
+   初始化与事件绑定
+   ================================================================ */
+function bindEvents() {
+  // 欢迎页
+  $("btn-create-vault").onclick = createVaultFromForm;
+  $("pw-create").oninput = updateStrength;
+  const eyeToggle = (eyeId, inputId) => {
+    $(eyeId).onclick = () => {
+      const i = $(inputId);
+      i.type = i.type === "password" ? "text" : "password";
+    };
+  };
+  eyeToggle("pw-eye-create", "pw-create");
+  eyeToggle("pw-eye-confirm", "pw-confirm");
+  eyeToggle("pw-eye-unlock", "pw-unlock");
+
+  // 锁屏
+  $("btn-unlock").onclick = unlockFromForm;
+  $("btn-quick").onclick = () => {
+    if (!quickSetup()) { openPatternSetup(); return; }
+    openModal("图案快捷解锁",
+      `当前已开启。你可以更改图案，或关闭本机的快捷解锁。`,
+      `<button class="btn btn-ghost" id="q-cancel">取消</button>
+       <button class="btn" id="q-change">更改图案</button>
+       <button class="btn btn-danger" id="q-off">关闭</button>`);
+    $("q-cancel").onclick = closeModal;
+    $("q-change").onclick = () => { closeModal(); openPatternSetup(); };
+    $("q-off").onclick = () => {
+      closeModal();
+      lsDel("sd-quick");
+      renderSettings();
+      showToast("快捷解锁已关闭", "ok");
+    };
+  };
+  $("btn-use-password").onclick = () => showLockMode("password");
+  $("btn-use-pattern").onclick = () => showLockMode("pattern");
+  $("btn-rec").onclick = async () => {
+    if (recGet()) {
+      openModal("重新生成恢复密钥？",
+        `旧的恢复密钥将<strong>立即失效</strong>。请确认你已从所有记录中删除旧密钥，避免日后混淆。`,
+        `<button class="btn btn-ghost" id="r-cancel">取消</button>
+         <button class="btn btn-danger" id="r-ok">重新生成</button>`);
+      $("r-cancel").onclick = closeModal;
+      $("r-ok").onclick = async () => {
+        closeModal();
+        try { const hex = await createRecoveryKey(); renderSettings(); showRecoveryKeyModal(hex); }
+        catch (e) { showToast("生成失败：" + e.message, "err"); }
+      };
+    } else {
+      try { const hex = await createRecoveryKey(); renderSettings(); showRecoveryKeyModal(hex); }
+      catch (e) { showToast("生成失败：" + e.message, "err"); }
+    }
+  };
+  $("btn-use-recovery").onclick = () => {
+    if (!recGet()) return;
+    openModal("用恢复密钥解锁",
+      `<p>输入生成恢复密钥时保存的那串字符（可粘贴，忽略空格与横线）。</p>
+       <input id="rec-input" class="input" type="text" placeholder="例如 9F3A2C8D-…" autocomplete="off" spellcheck="false">`,
+      `<button class="btn btn-ghost" id="rec-cancel">取消</button>
+       <button class="btn btn-primary" id="rec-ok">解锁</button>`);
+    const inp = $("rec-input"), ok = $("rec-ok"), cancel = $("rec-cancel");
+    cancel.onclick = closeModal;
+    const submitRec = async () => {
+      const hex = normRecKey(inp.value);
+      if (hex.length !== 64) return showToast("恢复密钥格式不正确", "err");
+      const f = getFails();
+      if (f.until > Date.now()) return showToast("尝试过多，请稍后再试", "err");
+      ok.disabled = true; ok.textContent = "正在解锁…";
+      try {
+        await unlockWithRecoveryKey(hex);
+        f.n = 0; setFails(f);
+        state.unlocked = true;
+        await decryptAllEntries();
+        await cleanupGhostEntries();
+        closeModal();
+        touch();
+        go("list");
+        showToast("已用恢复密钥解锁，建议尽快修改主密码", "ok");
+      } catch (e) {
+        f.n++;
+        if (f.n >= 5) f.until = Date.now() + Math.min(30000 * Math.pow(2, f.n - 5), 3600000);
+        setFails(f);
+        ok.disabled = false; ok.textContent = "解锁";
+        showToast("恢复密钥错误", "err");
+      }
+    };
+    ok.onclick = submitRec;
+    inp.onkeydown = (e) => { if (e.key === "Enter") submitRec(); };
+    inp.focus();
+  };
+  bindPatternGrid("pattern-svg", submitQuickUnlock);
+  $("pw-unlock").addEventListener("keydown", (e) => { if (e.key === "Enter") unlockFromForm(); });
+
+  // 列表
+  $("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value;
+    $("search-clear").classList.toggle("show", !!searchTerm);
+    renderList();
+  });
+  $("search-clear").onclick = () => { $("search").value = ""; searchTerm = ""; $("search-clear").classList.remove("show"); renderList(); };
+  $("btn-new-entry").onclick = () => go("edit/");
+  $("btn-lock").onclick = () => { lockVault(); go("lock"); showToast("已锁定"); };
+
+  // 编辑器
+  $("btn-settings").onclick = () => go("settings");
+  $("ed-back").onclick = () => { saveAndBack(); };
+  $("btn-save").onclick = async () => {
+    clearTimeout(saveTimer);
+    const btn = $("btn-save");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> 保存`;
+    try {
+      await saveCurrentNow();
+      btn.disabled = false;
+      btn.innerHTML = `<svg class="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M20 6 9 17l-5-5"/></svg> 已保存`;
+      btn.classList.add("save-flash");
+      setTimeout(() => btn.classList.remove("save-flash"), 450);
+      await new Promise(r => setTimeout(r, 430));
+      saveAndBack();
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = "保存";
+      showToast("保存失败，请重试", "err");
+    }
+  };
+  $("ed-title").addEventListener("input", scheduleSave);
+  $("ed-content").addEventListener("input", () => { scheduleSave(); updateWords(); });
+  $("ed-tags").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === "," || e.key === "，") {
+      e.preventDefault();
+      addTag(val("ed-tags"));
+      $("ed-tags").value = "";
+    }
+  });
+  $("ed-tags").addEventListener("blur", () => {
+    if (val("ed-tags").trim()) { addTag(val("ed-tags")); $("ed-tags").value = ""; }
+  });
+  $("ed-date").addEventListener("change", scheduleSave);
+  $("btn-today").onclick = () => { $("ed-date").value = todayStr(); scheduleSave(); };
+  $("btn-delete").onclick = confirmDeleteEntry;
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s" && $("view-editor").classList.contains("active")) {
+      e.preventDefault();
+      clearTimeout(saveTimer);
+      saveCurrentNow();
+      showToast("已保存", "ok");
+    }
+  });
+
+  // 设置
+  $("set-back").onclick = () => go("list");
+  $("stats-back").onclick = () => go("list");
+  $("btn-stats").onclick = () => go("stats");
+  $("stats-prev").onclick = () => shiftStatsMonth(-1);
+  $("stats-next").onclick = () => shiftStatsMonth(1);
+  $("date-filter-clear").onclick = () => {
+    listDateFilter = null;
+    updateDateFilter();
+    renderList(false);
+  };
+  // 自动锁定改为自绘选项按钮（见 renderAutoLock）
+  $("btn-lock-now").onclick = () => { lockVault(); go("lock"); showToast("已锁定"); };
+  $("btn-changepw").onclick = changePasswordFlow;
+  $("btn-save-sync").onclick = saveSyncConfig;
+  $("btn-sync-now").onclick = async () => {
+    try { await syncNow(false); renderSettings(); }
+    catch (e) { showToast("同步失败：" + e.message, "err"); }
+  };
+  const sw = $("switch-auto-sync");
+  if (sw) {
+    const flip = () => {
+      state.settings.autoSync = !state.settings.autoSync;
+      sw.setAttribute("aria-checked", String(state.settings.autoSync));
+      saveSettings();
+      if (state.settings.autoSync) maybeAutoSync();
+    };
+    sw.onclick = flip;
+    sw.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } };
+  }
+  $("btn-export").onclick = exportVault;
+  $("backup-now").onclick = () => { exportVault(); };
+  $("backup-later").onclick = () => {
+    localStorage.setItem("sd-backup-remind-dismissed", String(Date.now()));
+    $("backup-banner").style.display = "none";
+  };
+  $("btn-import").onclick = () => $("file-import").click();
+  $("file-import").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    try {
+      const r = await importVaultFile(f);
+      if (r !== "cancelled") renderList();
+    } catch (err) {
+      showToast("导入失败：" + err.message, "err");
+    }
+  });
+  $("btn-delete-all").onclick = confirmDeleteAll;
+
+  // 弹窗遮罩点击关闭
+  $("modal-mask").addEventListener("click", (e) => { if (e.target === $("modal-mask")) closeModal(); });
+
+  // 活动追踪（自动锁定）
+  ["pointerdown", "keydown", "scroll", "touchstart"].forEach(ev =>
+    document.addEventListener(ev, touch, { passive: true })
+  );
+}
+
+async function createVaultFromForm() {
+  const pw = val("pw-create");
+  const cw = val("pw-confirm");
+  if (pw.length < 8) return showToast("主密码至少需要 8 位", "err");
+  if (pw !== cw) return showToast("两次输入的密码不一致", "err");
+  const btn = $("btn-create-vault");
+  btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> 正在生成密钥…`;
+  try {
+    await createVault(pw);
+    await loadAllEntries();
+    await decryptAllEntries();
+    showToast("日记本已创建", "ok");
+    go("list");
+    if (!recGet()) createRecoveryKey().then(showRecoveryKeyModal);
+  } catch (e) {
+    showToast("创建失败：" + e.message, "err");
+  } finally {
+    btn.disabled = false; btn.textContent = "创建加密日记本";
+  }
+}
+
+async function unlockFromForm() {
+  const pw = val("pw-unlock");
+  if (!pw) return;
+  const f = getFails();
+  if (f.until > Date.now()) {
+    const s = Math.ceil((f.until - Date.now()) / 1000);
+    $("attempt-wait").style.display = "block";
+    $("attempt-wait").textContent = `尝试过多，请 ${s} 秒后再试`;
+    return;
+  }
+  const btn = $("btn-unlock");
+  btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> 正在验证…`;
+  const errEl = $("lock-error");
+  errEl.classList.remove("show");
+  $("attempt-wait").style.display = "none";
+  try {
+    await unlockVault(pw);
+    f.n = 0; setFails(f);
+    await decryptAllEntries();
+    await cleanupGhostEntries();
+    $("pw-unlock").value = "";
+    touch();
+    go("list");
+    maybeAutoSync();
+    // 已配置同步时，解锁后自动同步
+    const g = state.settings.gh;
+    if (g && g.owner && g.repo && g.token) {
+      syncNow(true).catch(() => {});
+    }
+  } catch (e) {
+    f.n++;
+    if (f.n >= 5) {
+      f.until = Date.now() + Math.min(30000 * Math.pow(2, f.n - 5), 3600000);
+      $("attempt-wait").style.display = "block";
+      $("attempt-wait").textContent = `尝试过多，请稍后再试`;
+    }
+    setFails(f);
+    errEl.textContent = "密码错误";
+    errEl.classList.add("show");
+  } finally {
+    btn.disabled = false; btn.textContent = "解锁";
+  }
+}
+
+async function saveCurrentNow() {
+  if (!state.unlocked || !state.editingId) return;
+  const plain = currentPlain();
+  if (!state.entries.has(state.editingId) && !hasDiaryContent(plain)) {
+    showToast("内容为空，不会保存", "err");
+    return;
+  }
+  await saveEntry(state.editingId, plain);
+  $("ed-save-state").className = "save-state ok";
+  $("ed-save-state").innerHTML = `<svg class="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 已保存`;
+}
+function saveAndBack() {
+  clearTimeout(saveTimer);
+  saveCurrentNow().catch(() => {});
+  go("list");
+}
+
+function confirmDeleteEntry() {
+  openModal("删除这篇日记？",
+    `删除后内容会在下一次同步时从所有设备移除。此操作不可撤销。`,
+    `<button class="btn btn-ghost" id="m-cancel">取消</button>
+     <button class="btn btn-danger" id="m-ok">删除</button>`);
+  $("m-cancel").onclick = closeModal;
+  $("m-ok").onclick = async () => {
+    closeModal();
+    await deleteEntryLocally(state.editingId);
+    state.editingId = null;
+    showToast("已删除", "ok");
+    go("list");
+  };
+}
+
+async function changePasswordFlow() {
+  openModal("修改主密码",
+    `<div class="field"><label for="cp-new">新密码（至少 8 位）</label>
+       <input id="cp-new" class="input" type="password" autocomplete="new-password"></div>
+     <div class="field"><label for="cp-conf">确认新密码</label>
+       <input id="cp-conf" class="input" type="password" autocomplete="new-password"></div>
+     <p class="hint">将使用新密钥重新加密全部日记。大量日记可能需要十几秒，请勿关闭页面。</p>`,
+    `<button class="btn btn-ghost" id="cp-cancel">取消</button>
+     <button class="btn btn-primary" id="cp-ok">重新加密并修改</button>`);
+  $("cp-cancel").onclick = closeModal;
+  $("cp-ok").onclick = async () => {
+    const a = val ? $("cp-new").value : "";
+    const b = $("cp-conf").value;
+    if (a.length < 8) return showToast("新密码至少 8 位", "err");
+    if (a !== b) return showToast("两次输入不一致", "err");
+    const btn = $("cp-ok");
+    btn.disabled = true; btn.textContent = "正在重新加密…";
+    try {
+      await changePassword(a);
+      let extra = "";
+      if (quickSetup()) { lsDel("sd-quick"); extra = "图案快捷解锁已重置；"; }
+      if (recGet()) { lsDel("sd-rec"); extra += "恢复密钥已失效，请重新生成；"; }
+      closeModal();
+      showToast("主密码已更新，全部日记已重新加密。" + extra, "ok");
+    } catch (e) {
+      showToast("修改失败：" + e.message, "err");
+      btn.disabled = false; btn.textContent = "重新加密并修改";
+    }
+  };
+}
+
+function confirmDeleteAll() {
+  openModal("清除全部数据？",
+    `将删除本机全部日记与密钥材料，<b>不可恢复</b>。云端同步的数据不会被删除，可重新拉取。请确认已保留加密备份。`,
+    `<button class="btn btn-ghost" id="da-cancel">取消</button>
+     <button class="btn btn-danger" id="da-ok">我已知晓，全部清除</button>`);
+  $("da-cancel").onclick = closeModal;
+  $("da-ok").onclick = async () => {
+    closeModal();
+    await idbClear("entries");
+    await idbClear("meta");
+    lsDel("sd-settings"); lsDel("sd-fails"); lsDel("sd-quick"); lsDel("sd-rec");
+    state.entries.clear(); state.manifest = newManifest();
+    state.salt = null; state.check = null; state.dataKey = null; state.unlocked = false;
+    location.hash = "";
+    location.reload();
+  };
+}
+
+/* ---- 启动 ---- */
+(async function init() {
+  loadSettings();
+  try {
+    const salt = await idbGet("meta", "salt");
+    const check = await idbGet("meta", "check");
+    const manifest = await idbGet("meta", "manifest");
+    if (salt) { state.salt = salt; state.check = check; state.manifest = manifest || newManifest(); }
+    else { state.manifest = newManifest(); }
+  } catch (e) {
+    console.error("读取本地库失败", e);
+  }
+  if ("serviceWorker" in navigator &&
+      (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+  buildMoodChips();
+  buildAbout();
+  bindEvents();
+  window.addEventListener("hashchange", route);
+  route();
+  setInterval(checkAutoLock, 5000);
+  setInterval(maybeAutoSync, 60 * 1000);  // 每分钟轻量检查，内部按 30 分钟间隔执行
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") maybeAutoSync();
+  });
+})();
+</script>
+
+</body>
+</html>

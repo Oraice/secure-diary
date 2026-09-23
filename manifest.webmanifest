@@ -1,0 +1,16 @@
+{
+  "name": "安全日记本 · Secure Diary",
+  "short_name": "安全日记本",
+  "description": "本地优先、端到端加密的私人日记本。数据加密后存储与同步，任何人都无法读取你的日记。",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4EFE4",
+  "theme_color": "#2E5E4A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
